@@ -1,1339 +1,705 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ContaProFinancial</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #f4f6fa;
-  --navy: #0b1628;
-  --navy2: #13243d;
-  --green: #00c896;
-  --green2: #00a87e;
-  --gold: #f4a12a;
-  --red: #f43f5e;
-  --blue: #3b82f6;
-  --purple: #8b5cf6;
-  --text: #1a2535;
-  --muted: #6b7a90;
-  --border: #e2e8f0;
-  --card: #ffffff;
-  --sidebar: 240px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPF System SaaS v4 | CONTAPRO Financial Partners</title>
+    <style>
+        :root {
+            --navy: #1e3a5f;
+            --blue: #1a56db;
+            --green: #057a55;
+            --red: #e02424;
+            --gold: #d97706;
+            --muted: #6b7280;
+            --brd: #e5e7eb;
+            --bg: #f9fafb;
+            --white: #ffffff;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
 
-/* ═══════════════════════════════
-   AUTH SCREENS
-═══════════════════════════════ */
-.auth-page {
-  min-height:100vh;
-  display:flex;
-  background: var(--navy);
-  position:relative;
-  overflow:hidden;
-}
-.auth-page::before {
-  content:'';
-  position:absolute;
-  top:-30%;left:-10%;
-  width:600px;height:600px;
-  background:radial-gradient(circle, rgba(0,200,150,0.12) 0%, transparent 70%);
-  pointer-events:none;
-}
-.auth-page::after {
-  content:'';
-  position:absolute;
-  bottom:-20%;right:-10%;
-  width:500px;height:500px;
-  background:radial-gradient(circle, rgba(244,161,42,0.08) 0%, transparent 70%);
-  pointer-events:none;
-}
-.auth-left {
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:60px;
-  position:relative;
-  z-index:1;
-}
-.auth-brand {
-  font-family:'Syne',sans-serif;
-  font-size:32px;
-  font-weight:800;
-  color:#fff;
-  margin-bottom:6px;
-  letter-spacing:-0.5px;
-}
-.auth-brand span { color:var(--green); }
-.auth-tagline {
-  font-size:14px;
-  color:rgba(255,255,255,0.4);
-  margin-bottom:60px;
-}
-.auth-feature {
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-  margin-bottom:28px;
-}
-.auth-feature-icon {
-  width:40px;height:40px;border-radius:10px;
-  background:rgba(0,200,150,0.12);border:1px solid rgba(0,200,150,0.2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:18px;flex-shrink:0;
-}
-.auth-feature-text strong { display:block;font-size:14px;color:#fff;margin-bottom:2px; }
-.auth-feature-text span { font-size:13px;color:rgba(255,255,255,0.4); }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg); color: #111827; line-height: 1.5; }
+        
+        /* Layout */
+        .app-container { min-height: 100vh; display: flex; flex-direction: column; }
+        .screen { display: none; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+        .screen.active { display: block; }
+        
+        .g2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+        .fr2 { display: flex; gap: 1rem; align-items: center; }
+        
+        /* Components */
+        .btn { padding: 0.6rem 1.2rem; border-radius: 0.5rem; border: none; cursor: pointer; font-weight: 500; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; }
+        .btn:active { transform: scale(0.98); }
+        .btn-navy { background: var(--navy); color: white; }
+        .btn-g { background: var(--green); color: white; }
+        .btn-red { background: var(--red); color: white; }
+        .btn-blue { background: var(--blue); color: white; }
+        .btn-out { background: transparent; border: 1px solid var(--brd); color: var(--navy); }
+        .btn-sm { padding: 0.3rem 0.6rem; font-size: 0.85rem; }
 
-.auth-right {
-  width:480px;
-  background:var(--card);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:48px;
-  position:relative;
-  z-index:1;
-}
-.auth-box { width:100%; }
-.auth-title {
-  font-family:'Syne',sans-serif;
-  font-size:26px;font-weight:800;
-  color:var(--navy);margin-bottom:6px;
-}
-.auth-sub { font-size:14px;color:var(--muted);margin-bottom:32px; }
-.form-group { margin-bottom:18px; }
-.form-label {
-  display:block;font-size:12px;font-weight:700;
-  text-transform:uppercase;letter-spacing:1px;
-  color:var(--muted);margin-bottom:7px;
-}
-.form-input,.form-select {
-  width:100%;padding:13px 16px;
-  border-radius:12px;border:2px solid var(--border);
-  font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;
-  outline:none;transition:border-color .2s,box-shadow .2s;
-  background:#fff;color:var(--text);
-}
-.form-input:focus,.form-select:focus {
-  border-color:var(--green);
-  box-shadow:0 0 0 4px rgba(0,200,150,0.1);
-}
-.form-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
-.btn {
-  padding:13px 24px;border-radius:12px;
-  font-size:14px;font-weight:700;cursor:pointer;
-  border:none;font-family:'Plus Jakarta Sans',sans-serif;
-  transition:all .2s;display:inline-flex;align-items:center;gap:8px;
-}
-.btn-green {
-  background:var(--green);color:#fff;width:100%;
-  justify-content:center;font-size:15px;padding:15px;
-}
-.btn-green:hover { background:var(--green2);transform:translateY(-1px);box-shadow:0 8px 25px rgba(0,200,150,0.35); }
-.btn-navy { background:var(--navy);color:#fff; }
-.btn-navy:hover { background:var(--navy2); }
-.btn-ghost { background:transparent;border:2px solid var(--border);color:var(--muted); }
-.btn-ghost:hover { border-color:var(--green);color:var(--green); }
-.btn-red { background:var(--red);color:#fff; }
+        .tag { padding: 0.2rem 0.6rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .t-g { background: #def7ec; color: #03543f; }
+        .t-b { background: #e1effe; color: #1e429f; }
+        .t-r { background: #fde8e8; color: #9b1c1c; }
+        .t-y { background: #fdf6b2; color: #723b13; }
 
-.auth-switch {
-  text-align:center;margin-top:20px;
-  font-size:13px;color:var(--muted);
-}
-.auth-switch a { color:var(--green);font-weight:700;cursor:pointer;text-decoration:none; }
+        .al { padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; border-left: 4px solid; }
+        .al-y { background: #fffbeb; border-color: var(--gold); color: #92400e; }
+        .al-r { background: #fdf2f2; border-color: var(--red); color: #9b1c1c; }
+        .al-g { background: #f3faf7; border-color: var(--green); color: #03543f; }
 
-.divider-or {
-  display:flex;align-items:center;gap:12px;
-  margin:20px 0;color:var(--muted);font-size:12px;
-}
-.divider-or::before,.divider-or::after {
-  content:'';flex:1;height:1px;background:var(--border);
-}
+        .fg { margin-bottom: 1rem; }
+        .fl { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--navy); }
+        .fi { width: 100%; padding: 0.6rem; border: 1px solid var(--brd); border-radius: 0.4rem; outline: none; transition: 0.2s; font-size: 1rem; }
+        .fi:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.1); }
 
-.error-msg {
-  background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);
-  border-radius:10px;padding:10px 14px;
-  font-size:13px;color:var(--red);margin-bottom:16px;
-  display:none;
-}
-.success-msg {
-  background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);
-  border-radius:10px;padding:10px 14px;
-  font-size:13px;color:var(--green);margin-bottom:16px;
-  display:none;
-}
+        /* Auth Screen */
+        #screen-login { max-width: 400px; margin-top: 10vh; background: white; padding: 2.5rem; border-radius: 1rem; shadow: var(--shadow); border: 1px solid var(--brd); }
+        .auth-tabs { display: flex; border-bottom: 1px solid var(--brd); margin-bottom: 2rem; }
+        .auth-tab { flex: 1; text-align: center; padding: 1rem; cursor: pointer; color: var(--muted); border-bottom: 2px solid transparent; }
+        .auth-tab.active { color: var(--blue); border-bottom-color: var(--blue); font-weight: 600; }
 
-/* ═══════════════════════════════
-   APP LAYOUT
-═══════════════════════════════ */
-.app { display:none;min-height:100vh; }
+        /* Modals */
+        .ov { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem; }
+        .ov.active { display: flex; }
+        .modal { background: white; padding: 2rem; border-radius: 1rem; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
 
-.sidebar {
-  width:var(--sidebar);min-height:100vh;
-  background:var(--navy);
-  position:fixed;top:0;left:0;z-index:100;
-  display:flex;flex-direction:column;
-  padding-bottom:20px;
-  overflow-y:auto;
-}
-.sidebar-logo {
-  padding:22px 20px 18px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-  margin-bottom:10px;
-}
-.logo-text {
-  font-family:'Syne',sans-serif;font-size:17px;font-weight:800;
-  color:#fff;line-height:1.2;
-}
-.logo-text span { color:var(--green); }
-.logo-biz {
-  font-size:11px;color:rgba(255,255,255,0.35);
-  margin-top:5px;font-weight:500;
-}
-.nav-section { padding:0 12px;margin-bottom:4px; }
-.nav-section-label {
-  font-size:9px;text-transform:uppercase;letter-spacing:2.5px;
-  color:rgba(255,255,255,0.2);padding:10px 10px 5px;font-weight:700;
-}
-.nav-item {
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px;border-radius:10px;
-  cursor:pointer;color:rgba(255,255,255,0.5);
-  font-size:13px;font-weight:600;margin-bottom:2px;
-  transition:all .2s;position:relative;
-}
-.nav-item:hover { background:rgba(255,255,255,0.06);color:#fff; }
-.nav-item.active { background:rgba(0,200,150,0.15);color:var(--green); }
-.nav-item.active::before {
-  content:'';position:absolute;left:0;top:25%;bottom:25%;
-  width:3px;background:var(--green);border-radius:0 3px 3px 0;
-}
-.nav-icon { font-size:15px;width:20px;text-align:center; }
+        /* Table UI */
+        .card { background: white; border: 1px solid var(--brd); border-radius: 0.5rem; overflow: hidden; margin-top: 1.5rem; box-shadow: var(--shadow); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #f9fafb; padding: 0.75rem 1rem; font-size: 0.75rem; font-weight: 600; color: var(--muted); border-bottom: 1px solid var(--brd); }
+        td { padding: 1rem; border-bottom: 1px solid var(--brd); font-size: 0.875rem; }
 
-.sidebar-footer {
-  margin-top:auto;padding:12px;
-}
-.user-card {
-  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);
-  border-radius:12px;padding:12px;
-  display:flex;align-items:center;gap:10px;
-}
-.user-avatar {
-  width:34px;height:34px;border-radius:50%;
-  background:linear-gradient(135deg,var(--green),var(--gold));
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:#fff;
-  flex-shrink:0;
-}
-.user-info { flex:1;min-width:0; }
-.user-name { font-size:12px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-.user-role { font-size:10px;color:rgba(255,255,255,0.35); }
-.logout-btn {
-  cursor:pointer;color:rgba(255,255,255,0.3);font-size:14px;
-  transition:color .2s;
-}
-.logout-btn:hover { color:var(--red); }
+        /* Sidebar/Nav placeholder */
+        nav { background: var(--navy); color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links { display: flex; gap: 1rem; }
+        .nav-link { color: rgba(255,255,255,0.8); text-decoration: none; cursor: pointer; }
+        .nav-link:hover { color: white; }
 
-/* ═══════════════════════════════
-   MAIN
-═══════════════════════════════ */
-.main { margin-left:var(--sidebar);flex:1;padding:28px 30px;min-height:100vh; }
-
-.topbar {
-  display:flex;justify-content:space-between;align-items:center;
-  margin-bottom:26px;
-}
-.page-title {
-  font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--navy);
-}
-.page-title span { color:var(--green); }
-.page-sub { font-size:12px;color:var(--muted);margin-top:3px; }
-
-/* KPIs */
-.kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px; }
-.kpi {
-  background:var(--card);border-radius:14px;padding:18px 20px;
-  border:1px solid var(--border);
-  border-left:4px solid var(--c);
-  transition:transform .2s,box-shadow .2s;
-}
-.kpi:hover { transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,0.08); }
-.kpi-label { font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px; }
-.kpi-value { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--navy);margin-bottom:5px; }
-.kpi-badge {
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;
-}
-.badge-up{background:rgba(0,200,150,0.1);color:var(--green)}
-.badge-dn{background:rgba(244,63,94,0.1);color:var(--red)}
-.badge-wn{background:rgba(244,161,42,0.1);color:var(--gold)}
-.badge-bl{background:rgba(59,130,246,0.1);color:var(--blue)}
-
-/* CARD */
-.card {
-  background:var(--card);border-radius:14px;padding:20px 22px;
-  border:1px solid var(--border);
-}
-.card-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:16px; }
-.card-title { font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--navy); }
-.card-action { font-size:12px;color:var(--green);font-weight:700;cursor:pointer; }
-
-/* GRID LAYOUTS */
-.g2 { display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px; }
-.g3-1 { display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px; }
-
-/* TABLE */
-.tbl { width:100%;border-collapse:collapse; }
-.tbl th { font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border);font-weight:700; }
-.tbl td { padding:11px 10px;font-size:13px;border-bottom:1px solid #f4f6fa; }
-.tbl tr:last-child td { border-bottom:none; }
-.tbl tr:hover td { background:#fafbfd; }
-.tag { display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px; }
-.tag-in  { background:rgba(0,200,150,0.1);color:var(--green) }
-.tag-out { background:rgba(244,63,94,0.1);color:var(--red) }
-.tag-warn{ background:rgba(244,161,42,0.1);color:var(--gold) }
-.tag-blu { background:rgba(59,130,246,0.1);color:var(--blue) }
-.amt-in  { color:var(--green);font-weight:700 }
-.amt-out { color:var(--red);font-weight:700 }
-
-/* ALERTS */
-.alert { display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:10px;margin-bottom:10px;border-left:3px solid; }
-.alert:last-child{margin-bottom:0}
-.alert-r{background:rgba(244,63,94,0.07);border-color:var(--red)}
-.alert-y{background:rgba(244,161,42,0.07);border-color:var(--gold)}
-.alert-g{background:rgba(0,200,150,0.07);border-color:var(--green)}
-.alert-icon{font-size:16px;margin-top:1px}
-.alert-body strong{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
-.alert-body span{font-size:12px;color:var(--muted);line-height:1.5}
-
-/* BAR CHART */
-.bar-chart-wrap { display:flex;align-items:flex-end;gap:6px;height:110px; }
-.bcol { flex:1;display:flex;flex-direction:column;align-items:center;gap:3px; }
-.bars { display:flex;gap:2px;align-items:flex-end;height:90px; }
-.bar { width:12px;border-radius:3px 3px 0 0; }
-.b-in { background:var(--green); }
-.b-out{ background:rgba(244,63,94,0.45); }
-.blbl { font-size:9px;color:var(--muted);font-weight:700; }
-
-/* FLOW ROW */
-.flow-row { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f4f6fa; }
-.flow-row:last-child{border-bottom:none}
-.flow-label{font-size:13px;font-weight:600;min-width:140px}
-.flow-track{flex:1;height:7px;background:#f0f4f8;border-radius:100px;overflow:hidden}
-.flow-fill{height:100%;border-radius:100px;transition:width .8s ease}
-.flow-val{font-size:13px;font-weight:700;min-width:100px;text-align:right}
-
-/* PROD ROW */
-.prod-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f4f6fa}
-.prod-row:last-child{border-bottom:none}
-.prod-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.prod-data{flex:1}
-.prod-name{font-size:13px;font-weight:700}
-.prod-sub{font-size:11px;color:var(--muted)}
-.marg-h{background:rgba(0,200,150,0.1);color:var(--green)}
-.marg-m{background:rgba(244,161,42,0.1);color:var(--gold)}
-.marg-l{background:rgba(244,63,94,0.1);color:var(--red)}
-
-/* PROJ MONTHS */
-.proj-grid{display:flex;gap:8px;flex-wrap:wrap}
-.proj-m{flex:1;min-width:60px;text-align:center;padding:10px 6px;border-radius:10px;background:#f4f6fa}
-.proj-m.hl{background:var(--green)}
-.proj-m-lbl{font-size:10px;color:var(--muted);font-weight:700}
-.proj-m.hl .proj-m-lbl,.proj-m.hl .proj-m-val{color:#fff}
-.proj-m-val{font-size:13px;font-weight:800;color:var(--navy);margin-top:3px}
-
-/* TAX */
-.tax-row{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:12px;background:#f8fafc;margin-bottom:10px}
-.tax-row:last-child{margin-bottom:0}
-.tax-lbl{font-size:13px;font-weight:700}
-.tax-due{font-size:11px;color:var(--muted);margin-top:2px}
-.tax-amt{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
-
-/* EQ */
-.eq-big{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;color:var(--navy);text-align:center;margin:12px 0 4px}
-.eq-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:16px}
-.eq-bar{height:12px;background:#f0f4f8;border-radius:100px;overflow:hidden;margin-bottom:8px}
-.eq-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--green));border-radius:100px;transition:width 1s ease}
-.eq-note{font-size:13px;color:var(--muted);text-align:center}
-.eq-note b{color:var(--green)}
-
-/* AI CHAT */
-.chat-win{background:var(--navy);border-radius:14px;padding:18px;min-height:220px;max-height:320px;overflow-y:auto;margin-bottom:10px}
-.chat-msg{display:flex;gap:8px;margin-bottom:12px}
-.chat-msg.user-msg{flex-direction:row-reverse}
-.chat-av{width:30px;height:30px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;font-family:'Syne',sans-serif}
-.chat-av.u{background:var(--blue)}
-.chat-bbl{background:rgba(255,255,255,0.08);border-radius:10px;padding:9px 13px;font-size:12px;color:rgba(255,255,255,0.82);line-height:1.6;max-width:82%}
-.chat-bbl.u{background:rgba(59,130,246,0.22)}
-.typing{display:flex;gap:3px;padding:9px 13px;background:rgba(255,255,255,0.08);border-radius:10px;width:fit-content}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 1.2s infinite}
-.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
-.chat-inp-row{display:flex;gap:8px}
-.chat-inp{flex:1;padding:11px 14px;border-radius:10px;border:2px solid var(--border);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color .2s}
-.chat-inp:focus{border-color:var(--green)}
-.qqs{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
-.qq{font-size:11px;padding:5px 11px;border-radius:100px;background:#fff;border:1px solid var(--border);color:var(--text);cursor:pointer;font-weight:600;transition:all .2s}
-.qq:hover{border-color:var(--green);color:var(--green)}
-
-/* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:999;align-items:center;justify-content:center}
-.overlay.show{display:flex}
-.modal{background:#fff;border-radius:18px;padding:30px;width:460px;max-width:94vw;animation:pop .3s ease}
-@keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--navy);margin-bottom:20px}
-.modal-actions{display:flex;gap:10px;margin-top:22px}
-
-/* SCREEN */
-.screen{display:none}
-.screen.active{display:block}
-
-/* LOADING */
-.loading-bar{
-  position:fixed;top:0;left:0;height:3px;
-  background:linear-gradient(90deg,var(--green),var(--gold));
-  z-index:9999;transition:width .4s ease;
-  border-radius:0 3px 3px 0;
-}
-
-/* TOAST */
-.toast{
-  position:fixed;bottom:24px;right:24px;
-  background:var(--navy);color:#fff;
-  padding:12px 20px;border-radius:12px;
-  font-size:13px;font-weight:600;
-  border-left:4px solid var(--green);
-  z-index:9999;
-  transform:translateY(80px);opacity:0;
-  transition:all .3s ease;
-  max-width:300px;
-}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.error{border-color:var(--red)}
-
-@media(max-width:900px){
-  .auth-left{display:none}
-  .auth-right{width:100%}
-  .sidebar{transform:translateX(-100%)}
-  .main{margin-left:0;padding:16px}
-  .kpi-grid{grid-template-columns:1fr 1fr}
-  .g2,.g3-1{grid-template-columns:1fr}
-}
-</style>
+        /* Utility classes */
+        .text-center { text-align: center; }
+        .mt-2 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
 
-<!-- LOADING BAR -->
-<div class="loading-bar" id="loadBar" style="width:0%"></div>
+    <div id="app" class="app-container">
+        <!-- Navigation bar (hidden at login) -->
+        <nav id="main-nav" class="hidden">
+            <div class="fr2">
+                <img src="" id="nav-logo" style="height: 32px; filter: brightness(0) invert(1);" alt="LOGO">
+                <strong id="nav-empresa">CONTAPRO Financial</strong>
+            </div>
+            <div class="nav-links">
+                <span class="nav-link" onclick="go('dash')">Dashboard</span>
+                <span class="nav-link" onclick="go('ventas')">Ventas</span>
+                <span class="nav-link" onclick="go('productos')">Inventario</span>
+                <span class="nav-link" id="nav-admin-link" onclick="go('admin')">Admin</span>
+                <span class="nav-link" onclick="logout()">Salir</span>
+            </div>
+        </nav>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+        <!-- Screen: Login -->
+        <div id="screen-login" class="screen active">
+            <div class="text-center mb-2">
+                <h1 style="color: var(--navy);">CPF System v4</h1>
+                <p style="color: var(--muted);">CONTAPRO Financial Partners</p>
+            </div>
 
-<!-- ═══════════════════════════
-     LOGIN
-═══════════════════════════ -->
-<div id="loginPage">
-  <div class="auth-page">
-    <div class="auth-left">
-      <div class="auth-brand">ContaPro<span>Financial</span></div>
-      <div class="auth-tagline">Inteligencia financiera para tu negocio</div>
-      <div class="auth-feature">
-        <div class="auth-feature-icon">📊</div>
-        <div class="auth-feature-text">
-          <strong>Dashboard en tiempo real</strong>
-          <span>Tus ingresos, gastos y utilidad siempre actualizados</span>
-        </div>
-      </div>
-      <div class="auth-feature">
-        <div class="auth-feature-icon">🤖</div>
-        <div class="auth-feature-text">
-          <strong>IA Asesora Financiera</strong>
-          <span>Pregunta en español, recibe análisis instantáneo</span>
-        </div>
-      </div>
-      <div class="auth-feature">
-        <div class="auth-feature-icon">💾</div>
-        <div class="auth-feature-text">
-          <strong>Base de datos por empresa</strong>
-          <span>Cada negocio con sus propios datos seguros y privados</span>
-        </div>
-      </div>
-      <div class="auth-feature">
-        <div class="auth-feature-icon">🏛️</div>
-        <div class="auth-feature-text">
-          <strong>Control de impuestos DIAN</strong>
-          <span>IVA, renta y retenciones calculadas automáticamente</span>
-        </div>
-      </div>
-    </div>
-    <div class="auth-right">
-      <div class="auth-box">
-        <div class="auth-title">Bienvenido</div>
-        <div class="auth-sub">Ingresa a tu cuenta para gestionar tu negocio</div>
-        <div class="error-msg" id="loginError">⚠️ Usuario o contraseña incorrectos</div>
-        <div class="form-group">
-          <label class="form-label">Correo electrónico</label>
-          <input class="form-input" id="loginEmail" type="email" placeholder="correo@empresa.com" value="demo@empresa.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Contraseña</label>
-          <input class="form-input" id="loginPass" type="password" placeholder="••••••••" value="demo123">
-        </div>
-        <button class="btn btn-green" onclick="doLogin()">Ingresar a mi empresa →</button>
-        <div class="divider-or">o</div>
-        <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="showRegister()">Crear cuenta nueva</button>
-        <div class="auth-switch" style="margin-top:16px;font-size:12px;color:var(--muted)">
-          🔐 Demo: <strong>demo@empresa.com</strong> / <strong>demo123</strong>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+            <div class="auth-tabs">
+                <div id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+                <div id="tab-activate" class="auth-tab" onclick="switchAuthTab('activate')">Activar Licencia</div>
+            </div>
 
-<!-- ═══════════════════════════
-     REGISTER
-═══════════════════════════ -->
-<div id="registerPage" style="display:none">
-  <div class="auth-page">
-    <div class="auth-left">
-      <div class="auth-brand">ContaPro<span>Financial</span></div>
-      <div class="auth-tagline">Crea tu cuenta en 2 minutos</div>
-      <div class="auth-feature"><div class="auth-feature-icon">🔒</div><div class="auth-feature-text"><strong>100% Seguro</strong><span>Cada empresa tiene datos completamente separados</span></div></div>
-      <div class="auth-feature"><div class="auth-feature-icon">🆓</div><div class="auth-feature-text"><strong>Sin complicaciones</strong><span>Empieza a registrar tus movimientos desde el primer día</span></div></div>
-    </div>
-    <div class="auth-right">
-      <div class="auth-box">
-        <div class="auth-title">Crear cuenta</div>
-        <div class="auth-sub">Registra tu empresa y comienza ahora</div>
-        <div class="error-msg" id="regError"></div>
-        <div class="success-msg" id="regSuccess"></div>
-        <div class="form-group"><label class="form-label">Nombre del negocio</label><input class="form-input" id="regBiz" placeholder="Ej: Tienda La Esperanza"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Tipo de negocio</label>
-            <select class="form-select" id="regType">
-              <option>Tienda / Miscelánea</option><option>Restaurante</option>
-              <option>Servicios</option><option>Manufactura</option><option>Comercio</option>
-            </select>
-          </div>
-          <div class="form-group"><label class="form-label">Ciudad</label><input class="form-input" id="regCity" placeholder="Ej: Neiva"></div>
-        </div>
-        <div class="form-group"><label class="form-label">Correo electrónico</label><input class="form-input" id="regEmail" type="email" placeholder="correo@empresa.com"></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Contraseña</label><input class="form-input" id="regPass" type="password" placeholder="Mínimo 6 caracteres"></div>
-          <div class="form-group"><label class="form-label">Régimen</label>
-            <select class="form-select" id="regRegimen">
-              <option>Simplificado</option><option>Común (IVA)</option><option>No responsable</option>
-            </select>
-          </div>
-        </div>
-        <button class="btn btn-green" onclick="doRegister()">Crear mi empresa →</button>
-        <div class="auth-switch">¿Ya tienes cuenta? <a onclick="showLogin()">Inicia sesión</a></div>
-      </div>
-    </div>
-  </div>
-</div>
+            <div id="form-login">
+                <div class="fg">
+                    <label class="fl">Email corporativo</label>
+                    <input type="email" id="login-email" class="fi" placeholder="ejemplo@empresa.com">
+                </div>
+                <div class="fg">
+                    <label class="fl">Contraseña</label>
+                    <input type="password" id="login-pass" class="fi" placeholder="••••••••">
+                </div>
+                <button onclick="doLogin()" class="btn btn-navy" style="width: 100%;">Iniciar Sesión</button>
+            </div>
 
-<!-- ═══════════════════════════
-     APP
-═══════════════════════════ -->
-<div class="app" id="appPage">
-  <nav class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-text">ContaPro<span>Financial</span></div>
-      <div class="logo-biz" id="sbBiz">—</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">Principal</div>
-      <div class="nav-item active" onclick="goTab('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</div>
-      <div class="nav-item" onclick="goTab('ingresos',this)"><span class="nav-icon">💰</span>Ingresos</div>
-      <div class="nav-item" onclick="goTab('gastos',this)"><span class="nav-icon">🧾</span>Gastos</div>
-      <div class="nav-item" onclick="goTab('cartera',this)"><span class="nav-icon">👥</span>Cartera</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">Análisis</div>
-      <div class="nav-item" onclick="goTab('flujo',this)"><span class="nav-icon">💵</span>Flujo de Caja</div>
-      <div class="nav-item" onclick="goTab('equilibrio',this)"><span class="nav-icon">⚖️</span>Punto Equilibrio</div>
-      <div class="nav-item" onclick="goTab('productos',this)"><span class="nav-icon">📦</span>Productos</div>
-      <div class="nav-item" onclick="goTab('proyeccion',this)"><span class="nav-icon">📈</span>Proyección</div>
-    </div>
-    <div class="nav-section">
-      <div class="nav-section-label">Control</div>
-      <div class="nav-item" onclick="goTab('impuestos',this)"><span class="nav-icon">🏛️</span>Impuestos</div>
-      <div class="nav-item" onclick="goTab('ia',this)"><span class="nav-icon">🤖</span>IA Asesora</div>
-    </div>
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="user-avatar" id="sbAvatar">?</div>
-        <div class="user-info">
-          <div class="user-name" id="sbEmail">—</div>
-          <div class="user-role">Administrador</div>
+            <div id="form-activate" class="hidden">
+                <div id="msg-activate" class="al al-y" style="font-size: 0.8rem;">
+                    Ingresa tu código de licencia enviado por CONTAPRO.
+                </div>
+                <div class="fg">
+                    <label class="fl">Código de Licencia</label>
+                    <input type="text" id="lic-codigo" class="fi" placeholder="CPF-2026-XXXXXXXX">
+                </div>
+                <div class="fg">
+                    <label class="fl">Crea tu Contraseña</label>
+                    <input type="password" id="lic-pass" class="fi" placeholder="Mínimo 8 caracteres">
+                </div>
+                <button onclick="activarLicencia()" class="btn btn-g" style="width: 100%;">Activar Ahora</button>
+            </div>
         </div>
-        <div class="logout-btn" onclick="doLogout()" title="Cerrar sesión">⏏</div>
-      </div>
-    </div>
-  </nav>
 
-  <main class="main">
+        <!-- Screen: Dashboard -->
+        <div id="screen-dash" class="screen">
+            <h2>Panel de Control</h2>
+            <div class="g2">
+                <div class="card" style="padding:1.5rem">
+                    <p class="fl">Ventas del Mes</p>
+                    <h1 id="dash-ventas">$0</h1>
+                </div>
+                <div class="card" style="padding:1.5rem">
+                    <p class="fl">Gastos del Mes</p>
+                    <h1 id="dash-gastos" style="color:var(--red)">$0</h1>
+                </div>
+                <div class="card" style="padding:1.5rem">
+                    <p class="fl">Utilidad Bruta</p>
+                    <h1 id="dash-utilidad" style="color:var(--green)">$0</h1>
+                </div>
+            </div>
+        </div>
 
-    <!-- ── DASHBOARD ── -->
-    <div id="tab-dashboard" class="screen active">
-      <div class="topbar">
-        <div><div class="page-title">Dashboard <span>Financiero</span></div><div class="page-sub" id="dashSub">Cargando...</div></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-ghost" style="padding:10px 16px;font-size:12px" onclick="goTab('ia',document.querySelectorAll('.nav-item')[10])">🤖 Consultar IA</button>
-          <button class="btn btn-navy" style="padding:10px 16px;font-size:12px" onclick="showModal('modalIngreso')">+ Registrar venta</button>
-        </div>
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi" style="--c:var(--green)"><div class="kpi-label">💰 Ingresos del mes</div><div class="kpi-value" id="kIngresos">$0</div><span class="kpi-badge badge-up" id="kIngDelta">—</span></div>
-        <div class="kpi" style="--c:var(--red)"><div class="kpi-label">🧾 Gastos del mes</div><div class="kpi-value" id="kGastos">$0</div><span class="kpi-badge badge-dn" id="kGasDelta">—</span></div>
-        <div class="kpi" style="--c:var(--blue)"><div class="kpi-label">📈 Utilidad real</div><div class="kpi-value" id="kUtilidad">$0</div><span class="kpi-badge badge-bl" id="kUtilBadge">—</span></div>
-        <div class="kpi" style="--c:var(--gold)"><div class="kpi-label">💵 Disponible hoy</div><div class="kpi-value" id="kDisponible">$0</div><span class="kpi-badge badge-wn" id="kDispBadge">—</span></div>
-      </div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Ingresos vs Gastos</div><span style="font-size:11px;color:var(--muted)">Últimas 6 semanas</span></div>
-          <div class="bar-chart-wrap" id="barChart">
-            <div class="bcol"><div class="bars"><div class="bar b-in" style="height:55px"></div><div class="bar b-out" style="height:40px"></div></div><div class="blbl">S1</div></div>
-            <div class="bcol"><div class="bars"><div class="bar b-in" style="height:70px"></div><div class="bar b-out" style="height:48px"></div></div><div class="blbl">S2</div></div>
-            <div class="bcol"><div class="bars"><div class="bar b-in" style="height:60px"></div><div class="bar b-out" style="height:52px"></div></div><div class="blbl">S3</div></div>
-            <div class="bcol"><div class="bars"><div class="bar b-in" style="height:80px"></div><div class="bar b-out" style="height:58px"></div></div><div class="blbl">S4</div></div>
-            <div class="bcol"><div class="bars"><div class="bar b-in" style="height:75px"></div><div class="bar b-out" style="height:55px"></div></div><div class="blbl">S5</div></div>
-            <div class="bcol"><div class="bars"><div class="bar b-in" id="barS6In" style="height:90px"></div><div class="bar b-out" id="barS6Out" style="height:65px"></div></div><div class="blbl">S6</div></div>
-          </div>
-          <div style="display:flex;gap:14px;margin-top:10px">
-            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:9px;height:9px;border-radius:2px;background:var(--green)"></div>Ingresos</div>
-            <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><div style="width:9px;height:9px;border-radius:2px;background:rgba(244,63,94,.45)"></div>Gastos</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Alertas Inteligentes</div></div>
-          <div id="alertsBox">
-            <div class="alert alert-g"><div class="alert-icon">✅</div><div class="alert-body"><strong>Sistema listo</strong><span>Registra tus movimientos para ver alertas personalizadas.</span></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Últimos movimientos</div><button class="btn btn-navy" style="padding:7px 14px;font-size:12px" onclick="showModal('modalIngreso')">+ Nuevo</button></div>
-        <table class="tbl"><thead><tr><th>Descripción</th><th>Tipo</th><th>Pago</th><th>Fecha</th><th>Valor</th></tr></thead>
-        <tbody id="movBody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin movimientos aún</td></tr></tbody></table>
-      </div>
-    </div>
+        <!-- Screen: Admin (Exclusive) -->
+        <div id="screen-admin" class="screen">
+            <div class="fr2" style="justify-content: space-between; margin-bottom: 2rem;">
+                <h1>Gestión de Clientes</h1>
+                <button onclick="abrirNuevaLicencia()" class="btn btn-navy">➕ Nuevo Cliente</button>
+            </div>
 
-    <!-- ── INGRESOS ── -->
-    <div id="tab-ingresos" class="screen">
-      <div class="topbar"><div><div class="page-title">Registro de <span>Ingresos</span></div></div><button class="btn btn-navy" onclick="showModal('modalIngreso')">+ Nueva venta</button></div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Total ingresos del mes</div></div>
-          <div style="text-align:center;padding:20px 0">
-            <div style="font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:var(--green)" id="ingMesTotal">$0</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:6px" id="ingMesCount">0 ventas registradas</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Registrar venta ⚡</div></div>
-          <div class="form-group"><label class="form-label">Producto / servicio</label><input class="form-input" id="qProd" placeholder="Ej: Arroz x 5kg"></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Valor ($)</label><input class="form-input" id="qVal" type="number" placeholder="0"></div>
-            <div class="form-group"><label class="form-label">Forma de pago</label><select class="form-select" id="qPago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Nequi</option></select></div>
-          </div>
-          <button class="btn btn-green" onclick="quickSale()">Registrar venta ahora</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Historial de ingresos</div></div>
-        <table class="tbl"><thead><tr><th>Producto/Servicio</th><th>Forma de pago</th><th>Fecha</th><th>Valor</th></tr></thead>
-        <tbody id="ingBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sin ingresos registrados</td></tr></tbody></table>
-      </div>
-    </div>
+            <div class="fr2 mb-2" style="background: white; padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--brd);">
+                <span class="nav-link" style="color: var(--navy)" onclick="filtroAdmin('todas')">Todas</span>
+                <span class="nav-link" style="color: var(--muted)" onclick="filtroAdmin('activas')">Activas</span>
+                <span class="nav-link" style="color: var(--muted)" onclick="filtroAdmin('morosas')">Pendientes</span>
+                <button onclick="exportarClientes()" class="btn btn-out btn-sm">Exportar CSV</button>
+            </div>
 
-    <!-- ── GASTOS ── -->
-    <div id="tab-gastos" class="screen">
-      <div class="topbar"><div><div class="page-title">Control de <span>Gastos</span></div></div><button class="btn btn-navy" onclick="showModal('modalGasto')">+ Registrar gasto</button></div>
-      <div class="kpi-grid">
-        <div class="kpi" style="--c:var(--red)"><div class="kpi-label">Total mes</div><div class="kpi-value" id="gTotalMes">$0</div></div>
-        <div class="kpi" style="--c:var(--gold)"><div class="kpi-label">Arriendo</div><div class="kpi-value" id="gArriendo">$0</div></div>
-        <div class="kpi" style="--c:var(--purple)"><div class="kpi-label">Nómina</div><div class="kpi-value" id="gNomina">$0</div></div>
-        <div class="kpi" style="--c:var(--blue)"><div class="kpi-label">Mercancía</div><div class="kpi-value" id="gMercancia">$0</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Desglose de gastos</div></div>
-        <div id="gastosDesglose"><div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Sin gastos registrados aún</div></div>
-      </div>
-      <div class="card" style="margin-top:18px">
-        <div class="card-header"><div class="card-title">Historial de gastos</div></div>
-        <table class="tbl"><thead><tr><th>Descripción</th><th>Categoría</th><th>Fecha</th><th>Valor</th></tr></thead>
-        <tbody id="gasBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sin gastos registrados</td></tr></tbody></table>
-      </div>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>EMPRESA / NIT</th>
+                            <th>LICENCIA</th>
+                            <th>ESTADO</th>
+                            <th>PAGOS</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-table-body">
+                        <!-- Clientes dinámicos -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Screen: Productos (Inventario) -->
+        <div id="screen-productos" class="screen">
+            <div class="fr2" style="justify-content: space-between; margin-bottom: 2rem;">
+                <h1>Inventario de Productos</h1>
+                <button onclick="abrirNuevoProducto()" class="btn btn-navy">➕ Nuevo Producto</button>
+            </div>
+            <div class="card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>CÓDIGO</th>
+                            <th>NOMBRE</th>
+                            <th>PRECIO VENTA</th>
+                            <th>STOCK</th>
+                            <th>ACCIONES</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prod-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Screen: Ventas (Facturación) -->
+        <div id="screen-ventas" class="screen">
+            <div class="g2" style="grid-template-columns: 1fr 350px;">
+                <!-- Catalogo/Buscador -->
+                <div class="card" style="padding: 1.5rem;">
+                    <h3>Nueva Venta</h3>
+                    <div class="fg" style="margin-top: 1rem;">
+                        <input type="text" id="v-buscar-prod" class="fi" placeholder="Buscar por nombre o código..." onkeyup="buscarProdVenta()">
+                    </div>
+                    <div id="v-resultados-busqueda" style="max-height: 400px; overflow-y: auto;">
+                        <!-- Resultados de búsqueda -->
+                    </div>
+                </div>
+                <!-- Carrito -->
+                <div class="card" style="padding: 1.5rem; background: #f8fafc;">
+                    <h3>Resumen de Venta</h3>
+                    <div id="v-carrito" style="margin: 1.5rem 0; min-height: 200px;">
+                        <!-- Items del carrito -->
+                        <p class="text-center" style="color: var(--muted);">El carrito está vacío</p>
+                    </div>
+                    <hr class="mb-2">
+                    <div class="fr2" style="justify-content: space-between;">
+                        <strong>Total:</strong>
+                        <h2 id="v-total">$0</h2>
+                    </div>
+                    <button onclick="procesarVenta()" class="btn btn-g" style="width: 100%; margin-top: 1.5rem;">Finalizar Venta (F10)</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Portals / Modals -->
+        <div id="ov-licencia" class="ov">
+            <!-- Modal Admin ya existente -->
+            <div class="modal">
+                <h3>Configuración de Licencia</h3>
+                <p style="color:var(--muted); font-size: 0.8rem; margin-bottom: 1.5rem;">Crea o edita la licencia de un cliente.</p>
+                <div class="g2">
+                    <div class="fg">
+                        <label class="fl">Nombre de la Empresa</label>
+                        <input type="text" id="m-lic-empresa" class="fi">
+                    </div>
+                    <div class="fg">
+                        <label class="fl">NIT</label>
+                        <input type="text" id="m-lic-nit" class="fi">
+                    </div>
+                </div>
+                <div class="g2">
+                    <div class="fg">
+                        <label class="fl">Email de Acceso</label>
+                        <input type="email" id="m-lic-email" class="fi">
+                    </div>
+                    <div class="fg">
+                        <label class="fl">Plan</label>
+                        <select id="m-lic-plan" class="fi">
+                            <option>Básico</option>
+                            <option>Profesional</option>
+                            <option>Empresarial</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl">Código Generado</label>
+                    <div class="fr2">
+                        <input type="text" id="m-lic-codigo" class="fi" readonly>
+                        <button onclick="generarCodigoLicencia()" class="btn btn-out">Génesis</button>
+                    </div>
+                </div>
+                <hr style="margin: 1rem 0; opacity: 0.2">
+                <div class="fr2" style="justify-content: flex-end;">
+                    <button class="btn btn-out" onclick="closeModal('ov-licencia')">Cancelar</button>
+                    <button class="btn btn-navy" onclick="guardarLicencia()">Guardar Cliente</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="ov-producto" class="ov">
+            <div class="modal">
+                <h3>Detalle de Producto</h3>
+                <div class="g2">
+                    <div class="fg">
+                        <label class="fl">Código/SKU</label>
+                        <input type="text" id="m-prod-sku" class="fi">
+                    </div>
+                    <div class="fg">
+                        <label class="fl">Nombre</label>
+                        <input type="text" id="m-prod-nombre" class="fi">
+                    </div>
+                </div>
+                <div class="g2">
+                    <div class="fg">
+                        <label class="fl">Precio Venta</label>
+                        <input type="number" id="m-prod-precio" class="fi">
+                    </div>
+                    <div class="fg">
+                        <label class="fl">Costo (Base)</label>
+                        <input type="number" id="m-prod-costo" class="fi">
+                    </div>
+                </div>
+                <div class="fg">
+                    <label class="fl">Stock Inicial</label>
+                    <input type="number" id="m-prod-stock" class="fi">
+                </div>
+                <div class="fr2" style="justify-content: flex-end;">
+                    <button class="btn btn-out" onclick="closeModal('ov-producto')">Cancelar</button>
+                    <button class="btn btn-navy" onclick="guardarProducto()">Guardar Producto</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- ── CARTERA ── -->
-    <div id="tab-cartera" class="screen">
-      <div class="topbar"><div><div class="page-title">Control de <span>Cartera</span></div></div><button class="btn btn-navy" onclick="showModal('modalCartera')">+ Nuevo crédito</button></div>
-      <div class="kpi-grid">
-        <div class="kpi" style="--c:var(--red)"><div class="kpi-label">Total por cobrar</div><div class="kpi-value" id="cartTotal">$0</div></div>
-        <div class="kpi" style="--c:var(--gold)"><div class="kpi-label">Vencidos</div><div class="kpi-value" id="cartVencidos">$0</div></div>
-        <div class="kpi" style="--c:var(--blue)"><div class="kpi-label">Clientes con deuda</div><div class="kpi-value" id="cartClientes">0</div></div>
-        <div class="kpi" style="--c:var(--green)"><div class="kpi-label">Cobrado este mes</div><div class="kpi-value" id="cartCobrado">$0</div></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Clientes con saldo pendiente</div></div>
-        <table class="tbl"><thead><tr><th>Cliente</th><th>Saldo</th><th>Vence</th><th>Estado</th><th></th></tr></thead>
-        <tbody id="cartBody"><tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin créditos registrados</td></tr></tbody></table>
-      </div>
-    </div>
+    <!-- Scripts -->
+    <script>
+        // --- CONSTANTES ---
+        const OWNER_EMAIL = 'admin@contapro.co';
+        const OWNER_PASS_DEFAULT = 'contapro2024';
+        const DB_KEY = 'cpf_db';
+        
+        // --- VARIABLES GLOBALES ---
+        let DB = {};
+        let USER = null; // Email del usuario activo
 
-    <!-- ── FLUJO DE CAJA ── -->
-    <div id="tab-flujo" class="screen">
-      <div class="topbar"><div><div class="page-title">Flujo de <span>Caja</span></div></div></div>
-      <div class="kpi-grid">
-        <div class="kpi" style="--c:var(--green)"><div class="kpi-label">💵 Tienes hoy</div><div class="kpi-value" id="fHoy">$0</div></div>
-        <div class="kpi" style="--c:var(--blue)"><div class="kpi-label">📥 Entradas</div><div class="kpi-value" id="fEntradas">$0</div></div>
-        <div class="kpi" style="--c:var(--red)"><div class="kpi-label">📤 Salidas</div><div class="kpi-value" id="fSalidas">$0</div></div>
-        <div class="kpi" style="--c:var(--gold)"><div class="kpi-label">📆 En 30 días</div><div class="kpi-value" id="f30">$0</div></div>
-      </div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Proyección 4 meses</div></div>
-          <div id="flujoProj"><div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Registra movimientos para ver la proyección</div></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">🤖 Análisis IA del flujo</div></div>
-          <div id="flujoAI"><div class="alert alert-g"><div class="alert-icon">💡</div><div class="alert-body"><strong>Empieza a registrar</strong><span>Con tus datos reales, la IA analizará tu flujo de caja automáticamente.</span></div></div></div>
-        </div>
-      </div>
-    </div>
+        // --- MOTOR DE DATOS ---
+        function getDB() {
+            const data = localStorage.getItem(DB_KEY);
+            if (!data) {
+                // Inicializar base de datos
+                const initialDB = {
+                    "_licencias": []
+                };
+                // Crear administrador maestro
+                initialDB[OWNER_EMAIL] = {
+                    empresa: "CONTAPRO Master Admin",
+                    email: OWNER_EMAIL,
+                    pass: btoa(OWNER_PASS_DEFAULT),
+                    rol: "admin",
+                    licenciaActiva: true
+                };
+                localStorage.setItem(DB_KEY, JSON.stringify(initialDB));
+                return initialDB;
+            }
+            return JSON.parse(data);
+        }
 
-    <!-- ── EQUILIBRIO ── -->
-    <div id="tab-equilibrio" class="screen">
-      <div class="topbar"><div><div class="page-title">Punto de <span>Equilibrio</span></div></div></div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">¿Cuánto necesitas vender para no perder?</div></div>
-          <div class="eq-big" id="eqNum">$0</div>
-          <div class="eq-sub">Ventas mínimas para cubrir todos los gastos</div>
-          <div class="eq-bar"><div class="eq-fill" id="eqFill" style="width:0%"></div></div>
-          <div class="eq-note" id="eqNote">Sin datos suficientes</div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Simula tu escenario</div></div>
-          <div class="form-group"><label class="form-label">Gastos fijos ($)</label><input class="form-input" id="simFijos" type="number" placeholder="0" oninput="calcEq()"></div>
-          <div class="form-group"><label class="form-label">Gastos variables ($)</label><input class="form-input" id="simVars" type="number" placeholder="0" oninput="calcEq()"></div>
-          <div style="background:linear-gradient(135deg,var(--green),var(--green2));border-radius:12px;padding:18px;text-align:center;margin-top:8px">
-            <div style="font-size:11px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px">Tu equilibrio</div>
-            <div id="simResult" style="font-family:'Syne',sans-serif;font-size:34px;font-weight:800;color:#fff;margin:6px 0">$0</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.7)">mínimo al mes</div>
-          </div>
-        </div>
-      </div>
-    </div>
+        function saveDB() {
+            localStorage.setItem(DB_KEY, JSON.stringify(DB));
+        }
 
-    <!-- ── PRODUCTOS ── -->
-    <div id="tab-productos" class="screen">
-      <div class="topbar"><div><div class="page-title">Análisis de <span>Productos</span></div></div><button class="btn btn-navy" onclick="showModal('modalProducto')">+ Agregar producto</button></div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Rentabilidad por producto</div></div>
-          <div id="prodList"><div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Agrega productos para ver el análisis</div></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">🤖 Recomendaciones IA</div></div>
-          <div id="prodAI"><div class="alert alert-g"><div class="alert-icon">💡</div><div class="alert-body"><strong>Agrega tus productos</strong><span>La IA identificará cuáles son más rentables y cuáles generan pérdidas.</span></div></div></div>
-        </div>
-      </div>
-    </div>
+        // --- NAVEGACIÓN ---
+        function go(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            const target = document.getElementById('screen-' + screenId);
+            if (target) target.classList.add('active');
+            
+            // Lógica específica por pantalla
+            if (screenId === 'admin') renderAdmin();
+            if (screenId === 'dash') renderDash();
+            if (screenId === 'productos') renderProductos();
+            if (screenId === 'ventas') resetVenta();
+        }
 
-    <!-- ── PROYECCIÓN ── -->
-    <div id="tab-proyeccion" class="screen">
-      <div class="topbar"><div><div class="page-title">Proyección <span>Financiera</span></div></div></div>
-      <div class="card" style="margin-bottom:18px">
-        <div class="card-header"><div class="card-title">Si mantienes el ritmo actual, en 6 meses ganarás:</div></div>
-        <div style="text-align:center;padding:16px 0 20px">
-          <div style="font-family:'Syne',sans-serif;font-size:52px;font-weight:800;color:var(--green)" id="proj6m">$0</div>
-          <div style="font-size:13px;color:var(--muted);margin-top:6px">Utilidad acumulada proyectada</div>
-        </div>
-        <div class="proj-grid" id="projMonths">
-          <div style="text-align:center;color:var(--muted);font-size:13px;padding:10px;width:100%">Registra datos para ver la proyección por mes</div>
-        </div>
-      </div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Escenarios de crecimiento</div></div>
-          <div id="escenarios"><div style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Sin datos suficientes</div></div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">🤖 Consejo IA</div></div>
-          <div class="alert alert-g"><div class="alert-icon">🚀</div><div class="alert-body"><strong>Para crecer 20%</strong><span>Activa ventas por redes sociales, crea programa de cliente frecuente y optimiza los productos más rentables.</span></div></div>
-        </div>
-      </div>
-    </div>
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('form-login').classList.remove('hidden');
+                document.getElementById('form-activate').classList.add('hidden');
+            } else {
+                document.getElementById('form-login').classList.add('hidden');
+                document.getElementById('form-activate').classList.remove('hidden');
+            }
+        }
 
-    <!-- ── IMPUESTOS ── -->
-    <div id="tab-impuestos" class="screen">
-      <div class="topbar"><div><div class="page-title">Control de <span>Impuestos</span></div></div></div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Obligaciones tributarias – <span id="impMes">Marzo 2026</span></div></div>
-        <div class="tax-row"><div><div class="tax-lbl">🧾 IVA por pagar</div><div class="tax-due">Régimen común · 19%</div></div><div class="tax-amt" style="color:var(--blue)" id="taxIVA">$0</div></div>
-        <div class="tax-row"><div><div class="tax-lbl">📋 Renta estimada (mensual)</div><div class="tax-due">Provisión para declaración anual</div></div><div class="tax-amt" style="color:var(--purple)" id="taxRenta">$0</div></div>
-        <div class="tax-row"><div><div class="tax-lbl">✂️ Retención en la fuente</div><div class="tax-due">Practicada en compras</div></div><div class="tax-amt" style="color:var(--gold)" id="taxRte">$0</div></div>
-        <div style="background:rgba(0,200,150,0.06);border:1px solid rgba(0,200,150,0.2);border-radius:10px;padding:13px;margin-top:6px">
-          <div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:4px">💡 Recordatorio DIAN</div>
-          <div style="font-size:12px;color:var(--muted)" id="taxNote">Registra tus ingresos para calcular automáticamente tus obligaciones tributarias.</div>
-        </div>
-      </div>
-    </div>
+        // --- AUTH ---
+        function doLogin() {
+            const email = document.getElementById('login-email').value.trim();
+            const pass = document.getElementById('login-pass').value;
+            
+            if (!DB[email]) return toast("Email no registrado o sin licencia activa", "err");
+            
+            if (DB[email].pass === btoa(pass)) {
+                if (!DB[email].licenciaActiva && email !== OWNER_EMAIL) {
+                    return toast("Licencia suspendida. Contacte a CONTAPRO.", "err");
+                }
+                loginSuccess(email);
+            } else {
+                toast("Credenciales incorrectas", "err");
+            }
+        }
 
-    <!-- ── IA ASESORA ── -->
-    <div id="tab-ia" class="screen">
-      <div class="topbar"><div><div class="page-title">🤖 IA <span>Asesora</span></div><div class="page-sub">Pregunta cualquier cosa sobre tus finanzas</div></div><span style="background:rgba(0,200,150,0.1);color:var(--green);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:700">● En línea</span></div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Tu asesor financiero inteligente</div></div>
-        <div class="chat-win" id="chatWin">
-          <div class="chat-msg"><div class="chat-av">IA</div><div class="chat-bbl">¡Hola! Soy tu asesora financiera de ContaProFinancial. Tengo acceso a todos los datos de tu negocio en tiempo real. ¿En qué te puedo ayudar hoy? 💚</div></div>
-        </div>
-        <div class="qqs">
-          <div class="qq" onclick="askIA(this.textContent)">¿Mi negocio está ganando dinero?</div>
-          <div class="qq" onclick="askIA(this.textContent)">¿Cuándo me quedo sin efectivo?</div>
-          <div class="qq" onclick="askIA(this.textContent)">¿Qué producto debo dejar de vender?</div>
-          <div class="qq" onclick="askIA(this.textContent)">¿Cuánto debo vender para no perder?</div>
-          <div class="qq" onclick="askIA(this.textContent)">¿Cuánto IVA debo pagar?</div>
-          <div class="qq" onclick="askIA(this.textContent)">¿Cómo mejorar mi flujo de caja?</div>
-        </div>
-        <div class="chat-inp-row" style="margin-top:10px">
-          <input class="chat-inp" id="chatInp" placeholder="Escribe tu pregunta..." onkeydown="if(event.key==='Enter')sendIA()">
-          <button class="btn btn-navy" onclick="sendIA()">Enviar →</button>
-        </div>
-      </div>
-    </div>
+        function loginSuccess(email) {
+            USER = email;
+            document.getElementById('screen-login').classList.remove('active');
+            document.getElementById('main-nav').classList.remove('hidden');
+            document.getElementById('nav-empresa').textContent = DB[USER].empresa;
+            
+            // Mostrar/ocultar link admin
+            if (USER === OWNER_EMAIL) {
+                document.getElementById('nav-admin-link').classList.remove('hidden');
+                go('admin');
+            } else {
+                document.getElementById('nav-admin-link').classList.add('hidden');
+                go('dash');
+            }
+            toast("Bienvenido al sistema", "ok");
+        }
 
-  </main>
-</div>
+        function logout() {
+            USER = null;
+            document.getElementById('main-nav').classList.add('hidden');
+            go('login');
+        }
 
-<!-- MODALS -->
-<div class="overlay" id="modalIngreso">
-  <div class="modal">
-    <div class="modal-title">⚡ Registrar venta</div>
-    <div class="form-group"><label class="form-label">Producto o servicio</label><input class="form-input" id="mProd" placeholder="Ej: Arroz x 5kg"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Valor ($)</label><input class="form-input" id="mVal" type="number" placeholder="0"></div>
-      <div class="form-group"><label class="form-label">Forma de pago</label><select class="form-select" id="mPago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Nequi</option></select></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveIngreso()">✅ Guardar venta</button>
-      <button class="btn btn-ghost" onclick="hideModal('modalIngreso')">Cancelar</button>
-    </div>
-  </div>
-</div>
+        function activarLicencia() {
+            const codigo = document.getElementById('lic-codigo').value.trim();
+            const pass = document.getElementById('lic-pass').value;
 
-<div class="overlay" id="modalGasto">
-  <div class="modal">
-    <div class="modal-title">🧾 Registrar gasto</div>
-    <div class="form-group"><label class="form-label">Descripción</label><input class="form-input" id="gDesc" placeholder="Ej: Pago arriendo local"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Categoría</label>
-        <select class="form-select" id="gCat"><option>Arriendo</option><option>Servicios</option><option>Mercancía</option><option>Transporte</option><option>Nómina</option><option>Otro</option></select>
-      </div>
-      <div class="form-group"><label class="form-label">Valor ($)</label><input class="form-input" id="gVal" type="number" placeholder="0"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveGasto()">✅ Guardar gasto</button>
-      <button class="btn btn-ghost" onclick="hideModal('modalGasto')">Cancelar</button>
-    </div>
-  </div>
-</div>
+            if (pass.length < 8) return toast("La contraseña debe tener al menos 8 caracteres", "err");
 
-<div class="overlay" id="modalCartera">
-  <div class="modal">
-    <div class="modal-title">👥 Registrar crédito a cliente</div>
-    <div class="form-group"><label class="form-label">Nombre del cliente</label><input class="form-input" id="cNom" placeholder="Ej: Carlos Martínez"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Monto ($)</label><input class="form-input" id="cMonto" type="number" placeholder="0"></div>
-      <div class="form-group"><label class="form-label">Fecha de vencimiento</label><input class="form-input" id="cVence" type="date"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveCartera()">✅ Registrar</button>
-      <button class="btn btn-ghost" onclick="hideModal('modalCartera')">Cancelar</button>
-    </div>
-  </div>
-</div>
+            const licIdx = DB._licencias.findIndex(l => l.codigo === codigo);
+            if (licIdx === -1) return toast("Código de licencia inválido", "err");
 
-<div class="overlay" id="modalProducto">
-  <div class="modal">
-    <div class="modal-title">📦 Agregar producto</div>
-    <div class="form-group"><label class="form-label">Nombre del producto</label><input class="form-input" id="pNom" placeholder="Ej: Café molido"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Costo ($)</label><input class="form-input" id="pCosto" type="number" placeholder="0"></div>
-      <div class="form-group"><label class="form-label">Precio de venta ($)</label><input class="form-input" id="pPrecio" type="number" placeholder="0"></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Icono (emoji)</label><input class="form-input" id="pIcon" placeholder="📦" maxlength="2" value="📦"></div>
-      <div class="form-group"><label class="form-label">Unidades vendidas</label><input class="form-input" id="pUnidades" type="number" placeholder="0"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveProducto()">✅ Guardar</button>
-      <button class="btn btn-ghost" onclick="hideModal('modalProducto')">Cancelar</button>
-    </div>
-  </div>
-</div>
+            const lic = DB._licencias[licIdx];
+            if (!lic.activa) return toast("Esta licencia ha sido desactivada", "err");
 
-<script>
-// ══════════════════════════════════════════════
-//  STORAGE HELPERS (persistent per user)
-// ══════════════════════════════════════════════
-const DB = {
-  _key(uid, k){ return `cpf_${uid}_${k}`; },
-  get(uid, k){ try{ const v = window.storage ? null : null; } catch(e){} 
-    const raw = localStorage.getItem(`cpf_${uid}_${k}`);
-    return raw ? JSON.parse(raw) : null;
-  },
-  set(uid, k, v){ localStorage.setItem(`cpf_${uid}_${k}`, JSON.stringify(v)); },
-  del(uid, k){ localStorage.removeItem(`cpf_${uid}_${k}`); }
-};
+            // Actualizar cuenta de usuario vinculada
+            if (DB[lic.email]) {
+                DB[lic.email].pass = btoa(pass);
+                DB[lic.email].licenciaActiva = true;
+                lic.activadaCliente = true;
+                lic.fechaActivacion = hoy();
+                saveDB();
+                toast("¡Licencia activada con éxito!", "ok");
+                switchAuthTab('login');
+            } else {
+                toast("Error técnico: usuario no encontrado", "err");
+            }
+        }
 
-// Users DB
-function getUsers(){ return JSON.parse(localStorage.getItem('cpf_users')||'{}'); }
-function saveUsers(u){ localStorage.setItem('cpf_users', JSON.stringify(u)); }
+        // --- ADMIN PANEL ---
+        function renderAdmin() {
+            const body = document.getElementById('admin-table-body');
+            body.innerHTML = '';
+            
+            DB._licencias.forEach((l, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong>${l.empresa}</strong><br>
+                        <small class="text-muted">${l.nit}</small>
+                    </td>
+                    <td>
+                        <span class="tag t-b">${l.plan}</span><br>
+                        <small>${l.codigo}</small>
+                    </td>
+                    <td>
+                        <span class="tag ${l.activa ? 't-g' : 't-r'}">${l.activa ? 'Activa' : 'Inactiva'}</span>
+                    </td>
+                    <td>
+                        <span class="tag ${l.pagoEst === 'al_dia' ? 't-g' : 't-y'}">${l.pagoEst.replace('_', ' ')}</span>
+                    </td>
+                    <td>
+                        <div class="fr2">
+                            <button class="btn btn-out btn-sm" onclick="toggleLicencia(${idx})">${l.activa ? '🔒' : '🔓'}</button>
+                            <button class="btn btn-out btn-sm" onclick="eliminarLicencia(${idx})">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
 
-// Seed demo user
-(function(){
-  const u = getUsers();
-  if(!u['demo@empresa.com']){
-    u['demo@empresa.com'] = {
-      pass:'demo123', biz:'Tienda La Esperanza',
-      type:'Tienda / Miscelánea', city:'Neiva', regimen:'Común (IVA)'
-    };
-    saveUsers(u);
-  }
-})();
+        function abrirNuevaLicencia() {
+            document.getElementById('m-lic-codigo').value = '';
+            document.getElementById('ov-licencia').classList.add('active');
+        }
 
-let CUR = null; // current user email
+        function generarCodigoLicencia() {
+            const year = new Date().getFullYear();
+            const random = Math.random().toString(36).substring(2, 10).toUpperCase();
+            document.getElementById('m-lic-codigo').value = `CPF-${year}-${random}`;
+        }
 
-// ══════════════════════════════════════════════
-//  AUTH
-// ══════════════════════════════════════════════
-function showLogin(){
-  document.getElementById('loginPage').style.display='block';
-  document.getElementById('registerPage').style.display='none';
-}
-function showRegister(){
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('registerPage').style.display='block';
-}
+        function guardarLicencia() {
+            const email = document.getElementById('m-lic-email').value.trim();
+            const empresa = document.getElementById('m-lic-empresa').value.trim();
+            const nit = document.getElementById('m-lic-nit').value.trim();
+            const plan = document.getElementById('m-lic-plan').value;
+            const codigo = document.getElementById('m-lic-codigo').value;
 
-function doLogin(){
-  const e = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const p = document.getElementById('loginPass').value;
-  const u = getUsers();
-  const errEl = document.getElementById('loginError');
-  if(!u[e] || u[e].pass !== p){
-    errEl.style.display='block';
-    setTimeout(()=>errEl.style.display='none', 3000);
-    return;
-  }
-  CUR = e;
-  localStorage.setItem('cpf_session', e);
-  launchApp(e, u[e]);
-}
+            if (!email || !empresa || !codigo) return toast("Faltan datos obligatorios", "err");
 
-function doRegister(){
-  const biz  = document.getElementById('regBiz').value.trim();
-  const type = document.getElementById('regType').value;
-  const city = document.getElementById('regCity').value.trim();
-  const email= document.getElementById('regEmail').value.trim().toLowerCase();
-  const pass = document.getElementById('regPass').value;
-  const reg  = document.getElementById('regRegimen').value;
-  const errEl = document.getElementById('regError');
-  const okEl  = document.getElementById('regSuccess');
+            const nuevaLic = {
+                codigo, empresa, nit, email, plan,
+                activa: true, activadaCliente: false,
+                pagoEst: 'al_dia', creado: hoy()
+            };
 
-  if(!biz||!city||!email||!pass){ errEl.textContent='⚠️ Completa todos los campos'; errEl.style.display='block'; return; }
-  if(pass.length < 6){ errEl.textContent='⚠️ La contraseña debe tener mínimo 6 caracteres'; errEl.style.display='block'; return; }
-  
-  const u = getUsers();
-  if(u[email]){ errEl.textContent='⚠️ Este correo ya está registrado'; errEl.style.display='block'; return; }
-  
-  u[email] = { pass, biz, type, city, regimen: reg };
-  saveUsers(u);
-  errEl.style.display='none';
-  okEl.textContent='✅ Cuenta creada. Iniciando sesión...';
-  okEl.style.display='block';
-  
-  CUR = email;
-  localStorage.setItem('cpf_session', email);
-  setTimeout(()=>launchApp(email, u[email]), 1200);
-}
+            DB._licencias.push(nuevaLic);
 
-function doLogout(){
-  localStorage.removeItem('cpf_session');
-  CUR = null;
-  document.getElementById('appPage').style.display='none';
-  document.getElementById('loginPage').style.display='block';
-  showToast('Sesión cerrada correctamente','ok');
-}
+            // Crear cuenta de usuario (vacia/inicial)
+            if (!DB[email]) {
+                DB[email] = {
+                    empresa, nit, email,
+                    pass: btoa('12345678'), // provisional
+                    licenciaActiva: true,
+                    configBloqueada: true,
+                    ventas: [], compras: [], productos: []
+                };
+            }
 
-function launchApp(email, info){
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('registerPage').style.display='none';
-  document.getElementById('appPage').style.display='flex';
-  document.getElementById('sbBiz').textContent = info.biz;
-  document.getElementById('sbEmail').textContent = email;
-  document.getElementById('sbAvatar').textContent = info.biz[0].toUpperCase();
-  progress(100);
-  refreshAll();
-  showToast('Bienvenido a ' + info.biz + ' 💚','ok');
-}
+            saveDB();
+            closeModal('ov-licencia');
+            renderAdmin();
+            toast("Cliente creado y licencia generada", "ok");
+        }
 
-// Auto-session restore
-window.addEventListener('DOMContentLoaded', ()=>{
-  const s = localStorage.getItem('cpf_session');
-  if(s){ const u = getUsers(); if(u[s]){ CUR=s; launchApp(s, u[s]); } }
-  progress(30);
-});
+        function toggleLicencia(idx) {
+            DB._licencias[idx].activa = !DB._licencias[idx].activa;
+            const email = DB._licencias[idx].email;
+            if (DB[email]) DB[email].licenciaActiva = DB._licencias[idx].activa;
+            saveDB();
+            renderAdmin();
+        }
 
-// ══════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════
-function goTab(id, el){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  if(el) el.classList.add('active');
-  refreshAll();
-}
+        function eliminarLicencia(idx) {
+            if (!confirm("¿Eliminar este cliente y todos sus datos?")) return;
+            const email = DB._licencias[idx].email;
+            delete DB[email];
+            DB._licencias.splice(idx, 1);
+            saveDB();
+            renderAdmin();
+        }
 
-// ══════════════════════════════════════════════
-//  DATA HELPERS
-// ══════════════════════════════════════════════
-function getIngresos(){ return DB.get(CUR,'ingresos') || []; }
-function getGastos(){ return DB.get(CUR,'gastos') || []; }
-function getCartera(){ return DB.get(CUR,'cartera') || []; }
-function getProductos(){ return DB.get(CUR,'productos') || []; }
+        // --- DASHBOARD ---
+        function renderDash() {
+            const u = DB[USER];
+            const tVentas = u.ventas?.reduce((acc, v) => acc + v.total, 0) || 0;
+            const tCompras = u.compras?.reduce((acc, c) => acc + c.total, 0) || 0;
+            
+            document.getElementById('dash-ventas').innerText = '$' + tVentas.toLocaleString();
+            document.getElementById('dash-gastos').innerText = '$' + tCompras.toLocaleString();
+            document.getElementById('dash-utilidad').innerText = '$' + (tVentas - tCompras).toLocaleString();
+        }
 
-function fmt(n){ return '$'+(Math.round(n)).toLocaleString('es-CO'); }
+        // --- PRODUCTOS / INVENTARIO ---
+        function renderProductos() {
+            const body = document.getElementById('prod-table-body');
+            body.innerHTML = '';
+            const prods = DB[USER].productos || [];
+            prods.forEach((p, idx) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.sku}</td>
+                    <td>${p.nombre}</td>
+                    <td>$${p.precio.toLocaleString()}</td>
+                    <td><span class="tag ${p.stock < 10 ? 't-r' : 't-g'}">${p.stock}</span></td>
+                    <td>
+                        <button class="btn btn-out btn-sm" onclick="eliminarProd(${idx})">🗑️</button>
+                    </td>
+                `;
+                body.appendChild(tr);
+            });
+        }
 
-function thisMonthData(){
-  const now = new Date(); const ym = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const ings = getIngresos().filter(r=>r.fecha.startsWith(ym));
-  const gas  = getGastos().filter(r=>r.fecha.startsWith(ym));
-  const totIng = ings.reduce((s,r)=>s+r.valor,0);
-  const totGas = gas.reduce((s,r)=>s+r.valor,0);
-  return { ings, gas, totIng, totGas, util: totIng-totGas };
-}
+        function abrirNuevoProducto() {
+            document.getElementById('ov-producto').classList.add('active');
+        }
 
-function today(){ return new Date().toISOString().slice(0,10); }
-function fmtDate(d){ return new Date(d+'T00:00:00').toLocaleDateString('es-CO',{day:'2-digit',month:'short'}); }
+        function guardarProducto() {
+            const sku = document.getElementById('m-prod-sku').value;
+            const nombre = document.getElementById('m-prod-nombre').value;
+            const precio = parseFloat(document.getElementById('m-prod-precio').value);
+            const stock = parseInt(document.getElementById('m-prod-stock').value);
 
-// ══════════════════════════════════════════════
-//  SAVE OPERATIONS
-// ══════════════════════════════════════════════
-function saveIngreso(){
-  const prod = document.getElementById('mProd').value.trim();
-  const val  = parseFloat(document.getElementById('mVal').value)||0;
-  const pago = document.getElementById('mPago').value;
-  if(!prod||val<=0){ showToast('Completa todos los campos','err'); return; }
-  const arr = getIngresos();
-  arr.unshift({ id:Date.now(), prod, valor:val, pago, fecha:today() });
-  DB.set(CUR,'ingresos',arr);
-  hideModal('modalIngreso');
-  document.getElementById('mProd').value='';
-  document.getElementById('mVal').value='';
-  showToast('✅ Venta registrada: '+fmt(val),'ok');
-  refreshAll();
-}
+            if (!sku || !nombre || isNaN(precio)) return toast("Datos inválidos", "err");
 
-function quickSale(){
-  const prod = document.getElementById('qProd').value.trim();
-  const val  = parseFloat(document.getElementById('qVal').value)||0;
-  const pago = document.getElementById('qPago').value;
-  if(!prod||val<=0){ showToast('Completa producto y valor','err'); return; }
-  const arr = getIngresos();
-  arr.unshift({ id:Date.now(), prod, valor:val, pago, fecha:today() });
-  DB.set(CUR,'ingresos',arr);
-  document.getElementById('qProd').value='';
-  document.getElementById('qVal').value='';
-  showToast('⚡ Venta rápida registrada: '+fmt(val),'ok');
-  refreshAll();
-}
+            if (!DB[USER].productos) DB[USER].productos = [];
+            DB[USER].productos.push({ sku, nombre, precio, stock });
+            saveDB();
+            closeModal('ov-producto');
+            renderProductos();
+            toast("Producto agregado", "ok");
+        }
 
-function saveGasto(){
-  const desc = document.getElementById('gDesc').value.trim();
-  const cat  = document.getElementById('gCat').value;
-  const val  = parseFloat(document.getElementById('gVal').value)||0;
-  if(!desc||val<=0){ showToast('Completa todos los campos','err'); return; }
-  const arr = getGastos();
-  arr.unshift({ id:Date.now(), desc, cat, valor:val, fecha:today() });
-  DB.set(CUR,'gastos',arr);
-  hideModal('modalGasto');
-  document.getElementById('gDesc').value='';
-  document.getElementById('gVal').value='';
-  showToast('✅ Gasto registrado: '+fmt(val),'ok');
-  refreshAll();
-}
+        // --- VENTAS ---
+        let CARRITO = [];
+        function resetVenta() {
+            CARRITO = [];
+            document.getElementById('v-buscar-prod').value = '';
+            document.getElementById('v-resultados-busqueda').innerHTML = '';
+            renderCarrito();
+        }
 
-function saveCartera(){
-  const nom   = document.getElementById('cNom').value.trim();
-  const monto = parseFloat(document.getElementById('cMonto').value)||0;
-  const vence = document.getElementById('cVence').value;
-  if(!nom||monto<=0||!vence){ showToast('Completa todos los campos','err'); return; }
-  const arr = getCartera();
-  arr.push({ id:Date.now(), nom, monto, vence, pagado:0, fecha:today() });
-  DB.set(CUR,'cartera',arr);
-  hideModal('modalCartera');
-  document.getElementById('cNom').value='';
-  document.getElementById('cMonto').value='';
-  showToast('✅ Crédito registrado','ok');
-  refreshAll();
-}
+        function buscarProdVenta() {
+            const q = document.getElementById('v-buscar-prod').value.toLowerCase();
+            const res = document.getElementById('v-resultados-busqueda');
+            res.innerHTML = '';
+            if (q.length < 2) return;
 
-function saveProducto(){
-  const nom    = document.getElementById('pNom').value.trim();
-  const costo  = parseFloat(document.getElementById('pCosto').value)||0;
-  const precio = parseFloat(document.getElementById('pPrecio').value)||0;
-  const icon   = document.getElementById('pIcon').value||'📦';
-  const units  = parseInt(document.getElementById('pUnidades').value)||0;
-  if(!nom||costo<=0||precio<=0){ showToast('Completa todos los campos','err'); return; }
-  const arr = getProductos();
-  arr.push({ id:Date.now(), nom, costo, precio, icon, units });
-  DB.set(CUR,'productos',arr);
-  hideModal('modalProducto');
-  showToast('✅ Producto agregado','ok');
-  refreshAll();
-}
+            const matches = DB[USER].productos.filter(p => p.nombre.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q));
+            matches.forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'fr2';
+                div.style = 'padding: 0.8rem; border-bottom: 1px solid var(--brd); cursor: pointer;';
+                div.onclick = () => addToCarrito(p);
+                div.innerHTML = `<div><strong>${p.nombre}</strong><br><small>$${p.precio.toLocaleString()}</small></div> <span class="tag t-b">Stock: ${p.stock}</span>`;
+                res.appendChild(div);
+            });
+        }
 
-function cobrCartera(id){
-  const arr = getCartera();
-  const idx = arr.findIndex(r=>r.id===id);
-  if(idx>=0){ arr[idx].pagado = arr[idx].monto; DB.set(CUR,'cartera',arr); refreshAll(); showToast('💚 Cobro registrado','ok'); }
-}
+        function addToCarrito(p) {
+            const item = CARRITO.find(c => c.sku === p.sku);
+            if (item) item.cant++;
+            else CARRITO.push({ ...p, cant: 1 });
+            renderCarrito();
+        }
 
-// ══════════════════════════════════════════════
-//  REFRESH UI
-// ══════════════════════════════════════════════
-function refreshAll(){
-  if(!CUR) return;
-  const {totIng, totGas, util} = thisMonthData();
-  const disp = Math.max(0, totIng - totGas);
-  const pct  = totIng>0 ? Math.round((util/totIng)*100) : 0;
+        function renderCarrito() {
+            const container = document.getElementById('v-carrito');
+            container.innerHTML = '';
+            let total = 0;
 
-  // KPIs
-  document.getElementById('kIngresos').textContent   = fmt(totIng);
-  document.getElementById('kGastos').textContent     = fmt(totGas);
-  document.getElementById('kUtilidad').textContent   = fmt(util);
-  document.getElementById('kDisponible').textContent = fmt(disp);
-  document.getElementById('kUtilBadge').textContent  = 'Margen '+pct+'%';
-  document.getElementById('kDispBadge').textContent  = disp < 500000 ? '⚠️ Bajo' : '✅ Normal';
-  document.getElementById('kIngDelta').className     = 'kpi-badge badge-up';
-  document.getElementById('kIngDelta').textContent   = fmt(totIng)+' acumulado';
+            CARRITO.forEach((c, idx) => {
+                const div = document.createElement('div');
+                div.className = 'fr2';
+                div.style = 'justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.9rem;';
+                div.innerHTML = `<span>${c.cant}x ${c.nombre}</span> <strong>$${(c.cant * c.precio).toLocaleString()}</strong>`;
+                container.appendChild(div);
+                total += c.cant * c.precio;
+            });
 
-  // Dashboard sub
-  const users = getUsers();
-  const info  = users[CUR]||{};
-  const now   = new Date();
-  document.getElementById('dashSub').textContent = `${info.biz||''} · ${now.toLocaleDateString('es-CO',{month:'long',year:'numeric'})}`;
+            if (CARRITO.length === 0) container.innerHTML = '<p class="text-center" style="color: var(--muted);">El carrito está vacío</p>';
+            document.getElementById('v-total').innerText = '$' + total.toLocaleString();
+        }
 
-  // Alerts
-  const alerts = [];
-  if(disp < 500000 && totIng > 0) alerts.push({t:'r', icon:'🚨', title:'Flujo de caja crítico', txt:'Tienes poco efectivo disponible. Revisa tus gastos.'});
-  if(totGas > totIng && totIng>0) alerts.push({t:'r', icon:'❌', title:'Gastos superan ingresos', txt:'Este mes estás gastando más de lo que ganas.'});
-  if(util > 0) alerts.push({t:'g', icon:'✅', title:'Negocio rentable', txt:'Tu utilidad este mes es '+fmt(util)+' ('+pct+'% de margen).'});
-  if(alerts.length===0) alerts.push({t:'g',icon:'💡',title:'Todo en orden',txt:'Registra más movimientos para alertas personalizadas.'});
-  document.getElementById('alertsBox').innerHTML = alerts.map(a=>`<div class="alert alert-${a.t}"><div class="alert-icon">${a.icon}</div><div class="alert-body"><strong>${a.title}</strong><span>${a.txt}</span></div></div>`).join('');
+        function procesarVenta() {
+            if (CARRITO.length === 0) return toast("Carrito vacío", "err");
+            
+            const total = CARRITO.reduce((acc, c) => acc + (c.cant * c.precio), 0);
+            const venta = {
+                fecha: hoy(),
+                items: [...CARRITO],
+                total: total
+            };
 
-  // Movements table
-  const all = [
-    ...getIngresos().map(r=>({...r,tipo:'in'})),
-    ...getGastos().map(r=>({...r,tipo:'out',prod:r.desc,pago:r.cat}))
-  ].sort((a,b)=>b.id-a.id).slice(0,8);
-  document.getElementById('movBody').innerHTML = all.length
-    ? all.map(r=>`<tr><td>${r.prod}</td><td><span class="tag ${r.tipo==='in'?'tag-in':'tag-out'}">${r.tipo==='in'?'Venta':r.pago}</span></td><td>${r.pago||''}</td><td>${fmtDate(r.fecha)}</td><td class="${r.tipo==='in'?'amt-in':'amt-out'}">${r.tipo==='in'?'+':'-'}${fmt(r.valor)}</td></tr>`).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin movimientos aún</td></tr>';
+            if (!DB[USER].ventas) DB[USER].ventas = [];
+            DB[USER].ventas.push(venta);
 
-  // Ingresos tab
-  const ings = getIngresos();
-  const ingMes = ings.filter(r=>r.fecha.startsWith(new Date().toISOString().slice(0,7)));
-  document.getElementById('ingMesTotal').textContent = fmt(ingMes.reduce((s,r)=>s+r.valor,0));
-  document.getElementById('ingMesCount').textContent = ingMes.length+' ventas registradas este mes';
-  document.getElementById('ingBody').innerHTML = ings.length
-    ? ings.slice(0,20).map(r=>`<tr><td>${r.prod}</td><td>${r.pago}</td><td>${fmtDate(r.fecha)}</td><td class="amt-in">+${fmt(r.valor)}</td></tr>`).join('')
-    : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sin ingresos</td></tr>';
+            // Descontar inventario
+            CARRITO.forEach(c => {
+                const p = DB[USER].productos.find(prod => prod.sku === c.sku);
+                if (p) p.stock -= c.cant;
+            });
 
-  // Gastos tab
-  const gas = getGastos();
-  const gasMes = gas.filter(r=>r.fecha.startsWith(new Date().toISOString().slice(0,7)));
-  const bycat = {};
-  gasMes.forEach(r=>{ bycat[r.cat]=(bycat[r.cat]||0)+r.valor; });
-  document.getElementById('gTotalMes').textContent  = fmt(gasMes.reduce((s,r)=>s+r.valor,0));
-  document.getElementById('gArriendo').textContent  = fmt(bycat['Arriendo']||0);
-  document.getElementById('gNomina').textContent    = fmt(bycat['Nómina']||0);
-  document.getElementById('gMercancia').textContent = fmt(bycat['Mercancía']||0);
-  const maxGas = Math.max(...Object.values(bycat),1);
-  const catColors = {Arriendo:'var(--gold)',Nómina:'var(--purple)',Mercancía:'var(--blue)',Servicios:'#64748b',Transporte:'#94a3b8',Otro:'#cbd5e1'};
-  document.getElementById('gastosDesglose').innerHTML = Object.keys(bycat).length
-    ? Object.entries(bycat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="flow-row"><span class="flow-label">${k}</span><div class="flow-track"><div class="flow-fill" style="width:${Math.round(v/maxGas*100)}%;background:${catColors[k]||'#94a3b8'}"></div></div><span class="flow-val amt-out">${fmt(v)}</span></div>`).join('')
-    : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Sin gastos registrados</div>';
-  document.getElementById('gasBody').innerHTML = gas.length
-    ? gas.slice(0,20).map(r=>`<tr><td>${r.desc}</td><td><span class="tag tag-warn">${r.cat}</span></td><td>${fmtDate(r.fecha)}</td><td class="amt-out">-${fmt(r.valor)}</td></tr>`).join('')
-    : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sin gastos</td></tr>';
+            saveDB();
+            toast("Venta procesada con éxito", "ok");
+            resetVenta();
+        }
 
-  // Cartera
-  const cart = getCartera().filter(r=>r.pagado<r.monto);
-  const cartTot = cart.reduce((s,r)=>s+r.monto-r.pagado,0);
-  const todayStr = today();
-  const cartVenc = cart.filter(r=>r.vence<=todayStr).reduce((s,r)=>s+r.monto-r.pagado,0);
-  document.getElementById('cartTotal').textContent   = fmt(cartTot);
-  document.getElementById('cartVencidos').textContent= fmt(cartVenc);
-  document.getElementById('cartClientes').textContent= cart.length;
-  document.getElementById('cartCobrado').textContent = fmt(getCartera().filter(r=>r.pagado>=r.monto).reduce((s,r)=>s+r.monto,0));
-  document.getElementById('cartBody').innerHTML = cart.length
-    ? cart.map(r=>{ const ven = r.vence<=todayStr; const prox = !ven && r.vence <= new Date(Date.now()+5*86400000).toISOString().slice(0,10);
-        return `<tr><td>${r.nom}</td><td class="amt-out">${fmt(r.monto-r.pagado)}</td><td>${fmtDate(r.vence)}</td><td><span class="tag ${ven?'tag-out':prox?'tag-warn':'tag-in'}">${ven?'Vencido':prox?'Próximo':'Al día'}</span></td><td><button class="btn btn-ghost" style="padding:5px 12px;font-size:11px" onclick="cobrCartera(${r.id})">Cobrar</button></td></tr>`;
-      }).join('')
-    : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">Sin créditos pendientes</td></tr>';
+        // --- UTILS ---
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function hoy() { return new Date().toISOString().split('T')[0]; }
+        function toast(msg, tipo) {
+            const t = document.createElement('div');
+            t.className = `al ${tipo === 'err' ? 'al-r' : 'al-g'}`;
+            t.style.position = 'fixed';
+            t.style.bottom = '1rem';
+            t.style.right = '1rem';
+            t.style.zIndex = '5000';
+            t.style.minWidth = '250px';
+            t.style.boxShadow = 'var(--shadow)';
+            t.innerText = msg;
+            document.body.appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
 
-  // Flujo de caja
-  document.getElementById('fHoy').textContent    = fmt(disp);
-  document.getElementById('fEntradas').textContent = fmt(totIng);
-  document.getElementById('fSalidas').textContent  = fmt(totGas);
-  const f30 = disp + totIng - totGas;
-  document.getElementById('f30').textContent = fmt(Math.max(0,f30));
-  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  const mn = now.getMonth();
-  const flujoRows = [0,1,2,3].map(i=>{ const v = Math.max(0, disp + (i+1)*(totIng-totGas)); const c = v<500000?'var(--red)':v<1500000?'var(--gold)':'var(--green)'; return `<div class="flow-row"><span class="flow-label">${meses[(mn+i)%12]}</span><div class="flow-track"><div class="flow-fill" style="width:${Math.min(100,Math.round(v/Math.max(disp,1)*80))}%;background:${c}"></div></div><span class="flow-val" style="color:${c}">${fmt(v)}</span></div>`; }).join('');
-  document.getElementById('flujoProj').innerHTML = totIng>0 ? flujoRows : '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Registra movimientos para ver la proyección</div>';
-  document.getElementById('flujoAI').innerHTML = totIng>0
-    ? (disp < 500000 ? '<div class="alert alert-r"><div class="alert-icon">🚨</div><div class="alert-body"><strong>Alerta de liquidez</strong><span>Con el ritmo actual, en pocos días el efectivo llegará a niveles críticos. Prioriza cobrar cartera pendiente.</span></div></div>'
-      : '<div class="alert alert-g"><div class="alert-icon">✅</div><div class="alert-body"><strong>Flujo saludable</strong><span>Tu negocio tiene buen ritmo. Sigue monitoreando para no tener sorpresas.</span></div></div>')
-    : '<div class="alert alert-g"><div class="alert-icon">💡</div><div class="alert-body"><strong>Empieza a registrar</strong><span>Con tus datos reales, la IA analizará tu flujo automáticamente.</span></div></div>';
+        // --- INIT ---
+        window.onload = () => {
+            DB = getDB();
+            console.log("CPF System v4 cargado.");
+        };
 
-  // Equilibrio
-  document.getElementById('eqNum').textContent = fmt(totGas);
-  const eqPct = totIng>0 ? Math.min(100,Math.round(totIng/Math.max(totGas,1)*100)) : 0;
-  document.getElementById('eqFill').style.width = eqPct+'%';
-  document.getElementById('eqNote').innerHTML = totIng>0
-    ? (totIng>=totGas ? `Vendiste <b>${fmt(totIng)}</b> — estás <b>${fmt(totIng-totGas)} por encima</b> del equilibrio ✅` : `⚠️ Necesitas vender <b>${fmt(totGas-totIng)} más</b> para no perder`)
-    : 'Sin datos suficientes aún';
-
-  // Productos
-  const prods = getProductos();
-  if(prods.length){
-    document.getElementById('prodList').innerHTML = prods.map(p=>{
-      const mg = p.precio>0 ? Math.round((p.precio-p.costo)/p.precio*100) : 0;
-      const cls = mg>=30?'marg-h':mg>=10?'marg-m':'marg-l';
-      return `<div class="prod-row"><div class="prod-ico" style="background:rgba(0,200,150,0.1)">${p.icon}</div><div class="prod-data"><div class="prod-name">${p.nom}</div><div class="prod-sub">${p.units} unidades · Costo ${fmt(p.costo)}</div></div><span class="tag ${cls}">${mg>=0?mg+'% ganancia':'Pérdida'}</span></div>`;
-    }).join('');
-    const best = prods.reduce((a,b)=>((b.precio-b.costo)/b.precio)>((a.precio-a.costo)/a.precio)?b:a);
-    const worst= prods.reduce((a,b)=>((b.precio-b.costo)/b.precio)<((a.precio-a.costo)/a.precio)?b:a);
-    document.getElementById('prodAI').innerHTML = `<div class="alert alert-g"><div class="alert-icon">⭐</div><div class="alert-body"><strong>Mejor producto: ${best.nom}</strong><span>Margen ${Math.round((best.precio-best.costo)/best.precio*100)}%. Aumenta su inventario.</span></div></div>`+
-      (worst.id!==best.id && (worst.precio-worst.costo)/worst.precio < 0.1
-        ? `<div class="alert alert-r" style="margin-top:8px"><div class="alert-icon">❌</div><div class="alert-body"><strong>Revisar: ${worst.nom}</strong><span>Margen muy bajo. Sube el precio o revisa el costo.</span></div></div>`:'');
-  }
-
-  // Proyección
-  const util6 = util * 6;
-  document.getElementById('proj6m').textContent = fmt(Math.max(0,util6));
-  const projMeses = ['Mar','Abr','May','Jun','Jul','Ago'];
-  document.getElementById('projMonths').innerHTML = util>0
-    ? projMeses.map((m,i)=>`<div class="proj-m ${i===0?'hl':''}"><div class="proj-m-lbl">${m}</div><div class="proj-m-val">${fmt(util*(1+i*0.02))}</div></div>`).join('')
-    : '<div style="text-align:center;color:var(--muted);font-size:13px;padding:10px;width:100%">Registra datos para ver proyección</div>';
-  document.getElementById('escenarios').innerHTML = util>0
-    ? `<div class="flow-row"><span class="flow-label">📉 -10% ventas</span><span class="flow-val" style="color:var(--red)">${fmt(util6*0.9)}</span></div><div class="flow-row"><span class="flow-label">➡️ Igual que ahora</span><span class="flow-val" style="color:var(--blue)">${fmt(util6)}</span></div><div class="flow-row"><span class="flow-label">📈 +10% ventas</span><span class="flow-val" style="color:var(--green)">${fmt(util6*1.1)}</span></div><div class="flow-row"><span class="flow-label">🚀 +20% ventas</span><span class="flow-val" style="color:var(--green)">${fmt(util6*1.2)}</span></div>`
-    : '<div style="color:var(--muted);font-size:13px;text-align:center;padding:10px">Sin datos suficientes</div>';
-
-  // Impuestos
-  const iva = totIng * 0.19 * 0.4;
-  const renta = util > 0 ? util * 0.15 / 12 : 0;
-  const rte = totGas * 0.02;
-  document.getElementById('taxIVA').textContent   = fmt(iva);
-  document.getElementById('taxRenta').textContent = fmt(renta)+'/mes';
-  document.getElementById('taxRte').textContent   = fmt(rte);
-  document.getElementById('taxNote').textContent  = iva>0
-    ? `Tu IVA estimado es ${fmt(iva)}. Reserva este dinero para la DIAN cada mes.`
-    : 'Registra tus ingresos para calcular automáticamente tus obligaciones tributarias.';
-}
-
-// ══════════════════════════════════════════════
-//  AI CHAT
-// ══════════════════════════════════════════════
-function askIA(q){ document.getElementById('chatInp').value=q; sendIA(); }
-
-function sendIA(){
-  const inp = document.getElementById('chatInp');
-  const q = inp.value.trim(); if(!q) return;
-  const win = document.getElementById('chatWin');
-  win.innerHTML += `<div class="chat-msg user-msg"><div class="chat-bbl u">${q}</div><div class="chat-av u">Yo</div></div>`;
-  const tid = 'tp'+Date.now();
-  win.innerHTML += `<div id="${tid}" class="chat-msg"><div class="chat-av">IA</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>`;
-  win.scrollTop=win.scrollHeight; inp.value='';
-  setTimeout(()=>{
-    const el=document.getElementById(tid); if(el)el.remove();
-    const resp = buildIAResp(q);
-    win.innerHTML+=`<div class="chat-msg"><div class="chat-av">IA</div><div class="chat-bbl">${resp}</div></div>`;
-    win.scrollTop=win.scrollHeight;
-  },1400);
-}
-
-function buildIAResp(q){
-  const {totIng,totGas,util} = thisMonthData();
-  const disp = Math.max(0,totIng-totGas);
-  const ql = q.toLowerCase();
-  if(ql.includes('ganando')||ql.includes('ganancia')||ql.includes('rentable')){
-    return util>0 ? `Sí, tu negocio está ganando dinero 💚<br><br>Este mes:<br>• Ingresos: <b>${fmt(totIng)}</b><br>• Gastos: <b>${fmt(totGas)}</b><br>• Utilidad: <b>${fmt(util)}</b><br><br>${totGas>totIng*0.7?'⚠️ Pero los gastos representan más del 70% de los ingresos. Revisa dónde recortar.':''}`
-      : totIng===0 ? 'Aún no tienes datos registrados. Empieza registrando tus ventas y gastos del mes.' : `⚠️ Atención: este mes los gastos (${fmt(totGas)}) superan los ingresos (${fmt(totIng)}). Necesitas reducir gastos o aumentar ventas.`;
-  }
-  if(ql.includes('efectivo')||ql.includes('caja')||ql.includes('liquide')){
-    return disp<200000 ? `🚨 Alerta crítica: solo tienes ${fmt(disp)} disponible hoy.<br><br>Acciones urgentes:<br>1. Cobrar cartera pendiente<br>2. Aplazar pagos no urgentes<br>3. Aumentar ventas esta semana`
-      : `Hoy tienes ${fmt(disp)} disponible.<br><br>${disp<1000000?'⚠️ El nivel es moderado. Monitorea de cerca los gastos próximos.':'✅ Tu liquidez está bien por ahora.'}`;
-  }
-  if(ql.includes('iva')||ql.includes('impuesto')||ql.includes('dian')){
-    const iva = totIng*0.19*0.4;
-    return `🏛️ Estimado de impuestos este mes:<br><br>• IVA: <b>${fmt(iva)}</b><br>• Renta (provisión): <b>${fmt(util>0?util*0.15/12:0)}/mes</b><br>• Retención: <b>${fmt(totGas*0.02)}</b><br><br>💡 Aparta este dinero hoy para no tener sorpresas con la DIAN.`;
-  }
-  if(ql.includes('equilibrio')||ql.includes('perder')||ql.includes('mínimo')){
-    return `⚖️ Tu punto de equilibrio es ${fmt(totGas)}.<br><br>Este es el mínimo que debes vender para no perder dinero.<br><br>${totIng>=totGas?`✅ ¡Lo estás superando! Vendiste ${fmt(totIng)}, que es ${fmt(totIng-totGas)} más del mínimo.`:`⚠️ Aún te faltan ${fmt(totGas-totIng)} para llegar al equilibrio.`}`;
-  }
-  if(ql.includes('producto')||ql.includes('vender')){
-    const prods = getProductos();
-    if(!prods.length) return 'No tienes productos registrados aún. Ve a la sección de Productos y agrégalos para ver cuáles son más rentables.';
-    const best = prods.reduce((a,b)=>((b.precio-b.costo)/b.precio)>((a.precio-a.costo)/a.precio)?b:a);
-    return `📦 Análisis de productos:<br><br>⭐ Tu mejor producto es <b>${best.nom}</b> con ${Math.round((best.precio-best.costo)/best.precio*100)}% de margen.<br><br>Revisa la sección de Productos para ver el análisis completo y las recomendaciones de la IA.`;
-  }
-  if(ql.includes('proyeccion')||ql.includes('proyección')||ql.includes('futuro')||ql.includes('ganar')){
-    return `📈 Proyección a 6 meses:<br><br>Si mantienes el ritmo actual, ganarías <b>${fmt(util*6)}</b> en los próximos 6 meses.<br><br>Para crecer 20%:<br>• Activa ventas por WhatsApp Business<br>• Crea programa de cliente frecuente<br>• Enfócate en los productos más rentables`;
-  }
-  return `Basándome en tus datos de este mes:<br><br>• Ingresos: <b>${fmt(totIng)}</b><br>• Gastos: <b>${fmt(totGas)}</b><br>• Utilidad: <b>${fmt(util)}</b><br><br>${totIng===0?'Empieza registrando tus ventas para obtener análisis más precisos.':'¿Quieres que profundice en algún área específica: flujo de caja, impuestos, productos o proyección?'}`;
-}
-
-// ══════════════════════════════════════════════
-//  UTILS
-// ══════════════════════════════════════════════
-function showModal(id){ document.getElementById(id).classList.add('show'); }
-function hideModal(id){ document.getElementById(id).classList.remove('show'); }
-document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('show'); }));
-
-function showToast(msg, type='ok'){
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show' + (type==='err'?' error':'');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(()=>t.classList.remove('show'), 3000);
-}
-
-function progress(p){
-  const b = document.getElementById('loadBar');
-  b.style.width = p+'%';
-  if(p>=100) setTimeout(()=>b.style.width='0%', 600);
-}
-
-function calcEq(){
-  const f = parseFloat(document.getElementById('simFijos').value)||0;
-  const v = parseFloat(document.getElementById('simVars').value)||0;
-  document.getElementById('simResult').textContent = fmt(f+v);
-}
-</script>
+    </script>
 </body>
 </html>
