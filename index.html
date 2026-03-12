@@ -440,7 +440,38 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
   .main{margin-left:0;padding:16px}
   .kpi-grid{grid-template-columns:1fr 1fr}
   .g2,.g3-1{grid-template-columns:1fr}
+  .pos-container { flex-direction: column; }
+  .pos-cart { width: 100%; border-left: none; border-top: 1px solid var(--border); }
 }
+
+/* POS SPECIAL STYLES */
+.pos-container { display: flex; gap: 0; min-height: calc(100vh - 120px); background: #f8fafc; border-radius: 16px; overflow: hidden; border: 1px solid var(--border); }
+.pos-products { flex: 1; padding: 20px; overflow-y: auto; }
+.pos-cart { width: 360px; background: #fff; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+.pos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.pos-prod-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 15px; cursor: pointer; transition: all .2s; }
+.pos-prod-card:hover { border-color: var(--green); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,200,150,0.1); }
+.pos-prod-icon { font-size: 24px; margin-bottom: 8px; }
+.pos-prod-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.pos-prod-price { font-size: 12px; color: var(--green); font-weight: 800; }
+.pos-cart-header { padding: 15px; border-bottom: 1px solid var(--border); font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+.pos-cart-items { flex: 1; overflow-y: auto; padding: 10px; }
+.pos-cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f8fafc; font-size: 12px; }
+.pos-cart-footer { padding: 20px; border-top: 2px solid var(--border); background: #fafbfd; }
+.pos-total-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; margin-bottom: 15px; }
+
+/* PRINT STYLES */
+@media print {
+  body * { visibility: hidden; }
+  #ticket-print, #ticket-print * { visibility: visible; }
+  #ticket-print { position: fixed; left: 0; top: 0; width: 80mm; padding: 5mm; background: #fff; font-family: monospace; font-size: 10px; color: #000; }
+  .no-print { display: none !important; }
+}
+
+#ticket-print { display: none; width: 80mm; padding: 20px; background: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin: 0 auto; font-family: 'Courier New', Courier, monospace; color: #333; }
+.ticket-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
+.ticket-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.ticket-footer { text-align: center; border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 9px; }
 </style>
 </head>
 <body>
@@ -590,7 +621,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     <div class="nav-section">
       <div class="nav-section-label">Principal</div>
       <div id="nav-dash" class="nav-item active" onclick="goTab('dashboard',this)"><span class="nav-icon">📊</span>Dashboard</div>
-      <div class="nav-item" onclick="goTab('ventas',this)"><span class="nav-icon">💰</span>Ventas / POS</div>
+      <div class="nav-item" id="nav-pos" onclick="goTab('ventas',this)"><span class="nav-icon">💰</span>Ventas / POS</div>
       <div class="nav-item" onclick="goTab('gastos',this)"><span class="nav-icon">🧾</span>Gastos</div>
       <div class="nav-item" onclick="goTab('cartera',this)"><span class="nav-icon">👥</span>Cartera</div>
     </div>
@@ -675,31 +706,51 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       </div>
     </div>
 
-    <!-- ── INGRESOS ── -->
-    <div id="tab-ingresos" class="screen">
-      <div class="topbar"><div><div class="page-title">Registro de <span>Ingresos</span></div></div><button class="btn btn-navy" onclick="showModal('modalIngreso')">+ Nueva venta</button></div>
-      <div class="g2">
-        <div class="card">
-          <div class="card-header"><div class="card-title">Total ingresos del mes</div></div>
-          <div style="text-align:center;padding:20px 0">
-            <div style="font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:var(--green)" id="ingMesTotal">$0</div>
-            <div style="font-size:13px;color:var(--muted);margin-top:6px" id="ingMesCount">0 ventas registradas</div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><div class="card-title">Registrar venta ⚡</div></div>
-          <div class="form-group"><label class="form-label">Producto / servicio</label><input class="form-input" id="qProd" placeholder="Ej: Arroz x 5kg"></div>
-          <div class="form-row">
-            <div class="form-group"><label class="form-label">Valor ($)</label><input class="form-input" id="qVal" type="number" placeholder="0"></div>
-            <div class="form-group"><label class="form-label">Forma de pago</label><select class="form-select" id="qPago"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Nequi</option></select></div>
-          </div>
-          <button class="btn btn-green" onclick="quickSale()">Registrar venta ahora</button>
+    <!-- ── VENTAS POS ── -->
+    <div id="tab-ventas" class="screen">
+      <div class="topbar">
+        <div><div class="page-title">Ventas <span>POS</span></div><div class="page-sub">Punto de Venta Rápido</div></div>
+        <div style="display:flex;gap:10px">
+           <button class="btn btn-ghost" onclick="renderPOSProducts()">🔄 Sincronizar</button>
+           <button class="btn btn-navy" onclick="vaciarCarrito()">🗑️ Vaciar</button>
         </div>
       </div>
-      <div class="card">
-        <div class="card-header"><div class="card-title">Historial de ingresos</div></div>
-        <table class="tbl"><thead><tr><th>Producto/Servicio</th><th>Forma de pago</th><th>Fecha</th><th>Valor</th></tr></thead>
-        <tbody id="ingBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">Sin ingresos registrados</td></tr></tbody></table>
+      
+      <div class="pos-container">
+        <div class="pos-products">
+          <div class="form-group" style="max-width:300px">
+            <input type="text" class="form-input" id="posSearch" placeholder="🔍 Buscar producto..." oninput="filterPOS()">
+          </div>
+          <div class="pos-grid" id="posGrid">
+            <!-- Cargado dinámicamente -->
+          </div>
+        </div>
+        
+        <div class="pos-cart">
+          <div class="pos-cart-header">
+            <span>🛒 Factura Actual</span>
+            <span class="tag tag-blu" id="cartCount">0 items</span>
+          </div>
+          <div class="pos-cart-items" id="posItems">
+            <!-- items del carrito -->
+          </div>
+          <div class="pos-cart-footer">
+            <div class="pos-total-row">
+              <span>Total a pagar</span>
+              <span id="posTotal">$0</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Método de Pago</label>
+              <select class="form-select" id="posPago">
+                <option>Efectivo</option>
+                <option>Nequi / Daviplata</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+              </select>
+            </div>
+            <button class="btn btn-green" onclick="completarVentaPOS()">✅ FACTURAR E IMPRIMIR</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -878,10 +929,52 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       </div>
     </div>
 
-    <!-- Screen placeholders for new modules -->
+    <!-- ── VENTAS POS ── -->
     <div id="tab-ventas" class="screen">
-       <div class="topbar"><div><div class="page-title">Ventas <span>POS</span></div><div class="page-sub">Facturación electrónica y POS táctil</div></div></div>
-       <div class="alert alert-y"><div class="alert-icon">⚡</div><div class="alert-body"><strong>Módulo en desarrollo</strong><span>Esta pantalla heredará la lógica de Ingresos pero con interfaz de Factura POS.</span></div></div>
+      <div class="topbar">
+        <div><div class="page-title">Ventas <span>POS</span></div><div class="page-sub">Punto de Venta Rápido</div></div>
+        <div style="display:flex;gap:10px">
+           <button class="btn btn-ghost" onclick="renderPOSProducts()">🔄 Sincronizar</button>
+           <button class="btn btn-navy" onclick="vaciarCarrito()">🗑️ Vaciar</button>
+        </div>
+      </div>
+      
+      <div class="pos-container">
+        <div class="pos-products">
+          <div class="form-group" style="max-width:300px">
+            <input type="text" class="form-input" id="posSearch" placeholder="🔍 Buscar producto..." oninput="filterPOS()">
+          </div>
+          <div class="pos-grid" id="posGrid">
+            <!-- Cargado dinámicamente -->
+          </div>
+        </div>
+        
+        <div class="pos-cart">
+          <div class="pos-cart-header">
+            <span>🛒 Factura Actual</span>
+            <span class="tag tag-blu" id="cartCount">0 items</span>
+          </div>
+          <div class="pos-cart-items" id="posItems">
+            <!-- items del carrito -->
+          </div>
+          <div class="pos-cart-footer">
+            <div class="pos-total-row">
+              <span>Total a pagar</span>
+              <span id="posTotal">$0</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Método de Pago</label>
+              <select class="form-select" id="posPago">
+                <option>Efectivo</option>
+                <option>Nequi / Daviplata</option>
+                <option>Tarjeta</option>
+                <option>Transferencia</option>
+              </select>
+            </div>
+            <button class="btn btn-green" onclick="completarVentaPOS()">✅ FACTURAR E IMPRIMIR</button>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div id="tab-puc" class="screen">
@@ -890,13 +983,29 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
     </div>
     
     <div id="tab-config" class="screen">
-       <div class="topbar"><div><div class="page-title">Mi <span>Cuenta</span></div><div class="page-sub">Configuración de empresa y seguridad</div></div></div>
-       <div class="g2">
-         <div class="card">
-           <div class="card-header"><div class="card-title">Datos Empresariales</div></div>
-           <div id="configFormBody"></div>
-         </div>
-         <div class="card">
+      <div class="topbar"><div><div class="page-title">Mi <span>Cuenta</span></div><div class="page-sub">Configuración de empresa y facturación</div></div></div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Datos Comerciales</div></div>
+          <div class="form-group"><label class="form-label">Nombre de la Empresa</label><input class="form-input" id="cfgBiz" placeholder="Ej: Mi Tienda S.A.S"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">NIT / RUT</label><input class="form-input" id="cfgNit" placeholder="900.000.000-0"></div>
+            <div class="form-group"><label class="form-label">Ciudad</label><input class="form-input" id="cfgCity" placeholder="Ej: Bogotá"></div>
+          </div>
+          <button class="btn btn-green" onclick="saveConfig()">Guardar cambios</button>
+        </div>
+        <div class="card" style="border-left:4px solid var(--gold)">
+          <div class="card-header"><div class="card-title">Resolución DIAN (Facturación POS)</div></div>
+          <div class="form-group"><label class="form-label">Resolución No.</label><input class="form-input" id="cfgRes" placeholder="1876XXXXXXXXXX"></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Prefijo</label><input class="form-input" id="cfgPre" placeholder="POS"></div>
+            <div class="form-group"><label class="form-label">Desde</label><input class="form-input" id="cfgFrom" type="number" placeholder="1"></div>
+            <div class="form-group"><label class="form-label">Hasta</label><input class="form-input" id="cfgTo" type="number" placeholder="9999"></div>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-top:10px">⚠️ Estos datos son obligatorios para que tus tickets POS cumplan con la norma legal vigente.</p>
+        </div>
+      </div>
+    </div>
            <div class="card-header"><div class="card-title">Cambiar Contraseña</div></div>
            <div class="form-group"><label class="form-label">Nueva Contraseña</label><input type="password" id="confNewPass" class="form-input"></div>
            <button class="btn btn-green" onclick="cambiarPass()">Actualizar Seguridad</button>
@@ -1221,6 +1330,145 @@ function renderPUC(){
   document.getElementById('pucTable').innerHTML = html || '<div style="text-align:center;padding:20px;color:var(--muted)">Sin registros contables</div>';
 }
 
+// ════════════ VENTAS POS LOGIC ════════════
+let POS_CART = [];
+
+function renderPOSProducts(){
+  const prods = getProductos();
+  const grid = document.getElementById('posGrid');
+  const term = document.getElementById('posSearch').value.toLowerCase();
+  
+  const filtered = prods.filter(p => p.nom.toLowerCase().includes(term));
+  
+  grid.innerHTML = filtered.map(p => `
+    <div class="pos-prod-card" onclick="addToCart(${p.id})">
+      <div class="pos-prod-icon">${p.icon||'📦'}</div>
+      <div class="pos-prod-name">${p.nom}</div>
+      <div class="pos-prod-price">${fmt(p.precio)}</div>
+      <div style="font-size:10px; color:var(--muted)">Stock: ${p.units}</div>
+    </div>
+  `).join('');
+  
+  if(!filtered.length) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No se encontraron productos</div>';
+}
+
+function filterPOS(){ renderPOSProducts(); }
+
+function addToCart(id){
+  const prods = getProductos();
+  const p = prods.find(x => x.id === id);
+  if(!p) return;
+  
+  const inCart = POS_CART.find(x => x.id === id);
+  if(inCart){
+    inCart.qty++;
+  } else {
+    POS_CART.push({ ...p, qty: 1 });
+  }
+  renderCart();
+  showToast('Agregado: ' + p.nom);
+}
+
+function renderCart(){
+  const list = document.getElementById('posItems');
+  let total = 0;
+  let count = 0;
+  
+  list.innerHTML = POS_CART.map((item, idx) => {
+    const sub = item.precio * item.qty;
+    total += sub;
+    count += item.qty;
+    return `
+      <div class="pos-cart-item">
+        <div style="flex:1">
+          <b>${item.nom}</b><br>
+          <small>${item.qty} x ${fmt(item.precio)}</small>
+        </div>
+        <div style="text-align:right">
+          <div>${fmt(sub)}</div>
+          <button class="btn btn-red" style="padding:2px 6px; font-size:10px" onclick="removeFromCart(${idx})">x</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  document.getElementById('posTotal').textContent = fmt(total);
+  document.getElementById('cartCount').textContent = count + ' items';
+  if(!POS_CART.length) list.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted);font-size:12px">Carrito vacío</div>';
+}
+
+function removeFromCart(idx){
+  POS_CART.splice(idx, 1);
+  renderCart();
+}
+
+function vaciarCarrito(){
+  POS_CART = [];
+  renderCart();
+}
+
+function completarVentaPOS(){
+  if(!POS_CART.length){ showToast('El carrito está vacío','err'); return; }
+  
+  const total = POS_CART.reduce((s, p) => s + (p.precio * p.qty), 0);
+  const pago = document.getElementById('posPago').value;
+  const users = getUsers();
+  const info = users[CUR] || {};
+  
+  // 1. Guardar Ingreso
+  const ings = getIngresos();
+  const saleId = Date.now();
+  ings.unshift({ 
+    id: saleId, 
+    prod: POS_CART.map(x => `${x.qty}x ${x.nom}`).join(', '), 
+    valor: total, 
+    pago, 
+    fecha: today() 
+  });
+  DB.set(CUR, 'ingresos', ings);
+  
+  // 2. Descontar Inventario
+  const prods = getProductos();
+  POS_CART.forEach(item => {
+    const pIdx = prods.findIndex(p => p.id === item.id);
+    if(pIdx !== -1) prods[pIdx].units = Math.max(0, prods[pIdx].units - item.qty);
+  });
+  DB.set(CUR, 'productos', prods);
+  
+  // 3. Registrar PUC
+  registrarPUC('ingreso', 'Factura POS #' + saleId.toString().slice(-4), total);
+  
+  // 4. Preparar Ticket
+  document.getElementById('t-biz').textContent = info.biz || 'MI EMPRESA';
+  document.getElementById('t-nit').textContent = 'NIT: ' + (info.nit || '000.000.000-0');
+  document.getElementById('t-city').textContent = info.city || 'COLOMBIA';
+  document.getElementById('t-date').textContent = new Date().toLocaleString();
+  document.getElementById('t-num').textContent = (info.pre || 'POS') + '-' + saleId.toString().slice(-4);
+  document.getElementById('t-pago').textContent = pago;
+  document.getElementById('t-total').textContent = fmt(total);
+  
+  document.getElementById('t-res').innerHTML = `
+    Res. DIAN ${info.res || '1876...'} <br>
+    Rango: ${info.pre || 'POS'}-${info.from || '1'} al ${info.pre || 'POS'}-${info.to || '9999'}
+  `;
+  
+  document.getElementById('t-items').innerHTML = POS_CART.map(item => `
+    <div class="ticket-row">
+      <span>${item.qty} x ${item.nom.slice(0,15)}</span>
+      <span>${fmt(item.precio * item.qty)}</span>
+    </div>
+  `).join('');
+  
+  // 5. Mostrar Ticket
+  document.getElementById('ticket-print').style.display = 'block';
+  showModal('overlay-ticket');
+  
+  // Limpiar
+  vaciarCarrito();
+  refreshAll();
+  showToast('✅ Venta procesada correctamente','ok');
+}
+
 
 function doLogout(){
   localStorage.removeItem('cpf_session');
@@ -1267,7 +1515,38 @@ function goTab(id, el){
   
   if(id === 'admin') renderAdmin();
   if(id === 'puc') renderPUC();
+  if(id === 'ventas') renderPOSProducts();
+  if(id === 'config') loadConfig();
   
+  refreshAll();
+}
+
+function loadConfig(){
+  const users = getUsers();
+  const info = users[CUR] || {};
+  document.getElementById('cfgBiz').value = info.biz || '';
+  document.getElementById('cfgNit').value = info.nit || '';
+  document.getElementById('cfgCity').value = info.city || '';
+  document.getElementById('cfgRes').value = info.res || '';
+  document.getElementById('cfgPre').value = info.pre || 'POS';
+  document.getElementById('cfgFrom').value = info.from || '1';
+  document.getElementById('cfgTo').value = info.to || '9999';
+}
+
+function saveConfig(){
+  const users = getUsers();
+  users[CUR] = {
+    ...users[CUR],
+    biz: document.getElementById('cfgBiz').value,
+    nit: document.getElementById('cfgNit').value,
+    city: document.getElementById('cfgCity').value,
+    res: document.getElementById('cfgRes').value,
+    pre: document.getElementById('cfgPre').value,
+    from: document.getElementById('cfgFrom').value,
+    to: document.getElementById('cfgTo').value
+  };
+  saveUsers(users);
+  showToast('✅ Configuración guardada', 'ok');
   refreshAll();
 }
 
