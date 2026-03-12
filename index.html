@@ -472,6 +472,26 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 .ticket-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 10px; margin-bottom: 10px; }
 .ticket-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
 .ticket-footer { text-align: center; border-top: 1px dashed #ccc; padding-top: 10px; margin-top: 10px; font-size: 9px; }
+
+/* Enhanced Inventory Styles */
+.modal.wide { width: 680px; }
+.img-upload-box {
+  width: 100%; height: 140px; border: 2px dashed var(--border); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  overflow: hidden; position: relative; transition: all .2s; background: #fafbfd;
+  margin-bottom: 15px;
+}
+.img-upload-box:hover { border-color: var(--green); background: rgba(0,200,150,0.02); }
+.img-upload-box img { width: 100%; height: 100%; object-fit: cover; }
+.img-upload-box .upload-placeholder { text-align: center; color: var(--muted); font-size: 12px; }
+.profit-display {
+  background: rgba(0,200,150,0.08); border: 1px solid rgba(0,200,150,0.2);
+  border-radius: 10px; padding: 12px; text-align: center; margin-top: 10px;
+}
+.profit-val { font-size: 18px; font-weight: 800; color: var(--green); display: block; }
+.profit-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.inventory-img { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: #f4f6fa; }
+.pos-img { width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: #f4f6fa; }
 </style>
 </head>
 <body>
@@ -1016,42 +1036,59 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 </div>
 
 <div class="overlay" id="modalProducto">
-  <div class="modal">
-    <div class="modal-title">📦 Agregar producto</div>
-    <div class="form-group"><label class="form-label">Nombre del producto</label><input class="form-input" id="pNom" placeholder="Ej: Café molido"></div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Costo ($)</label><input class="form-input" id="pCosto" type="number" placeholder="0"></div>
-      <div class="form-group"><label class="form-label">Precio de venta ($)</label><input class="form-input" id="pPrecio" type="number" placeholder="0"></div>
-    <div id="overlay-lic" class="overlay">
-  <div class="modal" style="width:600px">
-    <div class="modal-title">💎 Configuración de Licencia</div>
+  <div class="modal wide">
+    <div class="modal-title">📦 Gestión de Producto</div>
     <div class="g2">
-      <div class="form-group"><label class="form-label">Nombre Empresa</label><input class="form-input" id="licEmp"></div>
-      <div class="form-group"><label class="form-label">NIT</label><input class="form-input" id="licNit"></div>
-    </div>
-    <div class="g2">
-      <div class="form-group"><label class="form-label">Email Cliente</label><input class="form-input" id="licEmail"></div>
-      <div class="form-group"><label class="form-label">Plan</label><select class="form-select" id="licPlan"><option>Básico</option><option>Profesional</option><option>Empresarial</option></select></div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Código Único</label>
-      <div style="display:flex;gap:8px">
-        <input class="form-input" id="licCode" readonly style="background:#f4f6fa">
-        <button class="btn btn-navy" onclick="genLicCode()" style="width:auto">Generar</button>
+      <div>
+        <label class="form-label">Imagen del Producto</label>
+        <div class="img-upload-box" onclick="document.getElementById('pImgInput').click()">
+          <input type="file" id="pImgInput" hidden accept="image/*" onchange="handleProdImage(this)">
+          <div id="pImgPrev" class="upload-placeholder">
+            <span>📷 Click para subir imagen</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre del producto</label>
+          <input class="form-input" id="pNom" placeholder="Ej: Café molido">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Referencia / SKU</label>
+            <input class="form-input" id="pRef" placeholder="REF-001">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <input class="form-input" id="pCat" placeholder="Ej: Granos">
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="form-group">
+          <label class="form-label">Almacén / Bodega</label>
+          <input class="form-input" id="pWh" placeholder="Ej: Principal">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio de Compra ($)</label>
+            <input class="form-input" id="pCosto" type="number" placeholder="0" oninput="calcProfit()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Precio de Venta ($)</label>
+            <input class="form-input" id="pPrecio" type="number" placeholder="0" oninput="calcProfit()">
+          </div>
+        </div>
+        <div class="profit-display">
+          <span class="profit-label">Utilidad de Ganancia estimada</span>
+          <span class="profit-val" id="pMargin">$0 (0%)</span>
+        </div>
+        <div class="form-row" style="margin-top:10px">
+          <div class="form-group"><label class="form-label">Icono / Emoji</label><input class="form-input" id="pIcon" placeholder="📦" maxlength="2" value="📦"></div>
+          <div class="form-group"><label class="form-label">Stock Inicial</label><input class="form-input" id="pUnidades" type="number" placeholder="0"></div>
+        </div>
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveLic()">Crear Licencia y Cuenta</button>
-      <button class="btn btn-ghost" onclick="hideModal('overlay-lic')">Cerrar</button>
-    </div>
-  </div>
-</div>
-    <div class="form-row">
-      <div class="form-group"><label class="form-label">Icono (emoji)</label><input class="form-input" id="pIcon" placeholder="📦" maxlength="2" value="📦"></div>
-      <div class="form-group"><label class="form-label">Unidades vendidas</label><input class="form-input" id="pUnidades" type="number" placeholder="0"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-green" style="flex:1" onclick="saveProducto()">✅ Guardar</button>
+      <button class="btn btn-green" style="flex:1" onclick="saveProducto()">✅ Guardar Producto</button>
       <button class="btn btn-ghost" onclick="hideModal('modalProducto')">Cancelar</button>
     </div>
   </div>
@@ -1292,14 +1329,17 @@ function renderPOSProducts(){
   
   const filtered = prods.filter(p => p.nom.toLowerCase().includes(term));
   
-  grid.innerHTML = filtered.map(p => `
-    <div class="pos-prod-card" onclick="addToCart(${p.id})">
-      <div class="pos-prod-icon">${p.icon||'📦'}</div>
-      <div class="pos-prod-name">${p.nom}</div>
-      <div class="pos-prod-price">${fmt(p.precio)}</div>
-      <div style="font-size:10px; color:var(--muted)">Stock: ${p.units}</div>
-    </div>
-  `).join('');
+  grid.innerHTML = filtered.map(p => {
+    const displayImg = p.img ? `<img src="${p.img}" class="pos-img">` : `<div class="pos-prod-icon">${p.icon||'📦'}</div>`;
+    return `
+      <div class="pos-prod-card" onclick="addToCart(${p.id})">
+        ${displayImg}
+        <div class="pos-prod-name">${p.nom}</div>
+        <div class="pos-prod-price">${fmt(p.precio)}</div>
+        <div style="font-size:10px; color:var(--muted)">Stock: ${p.units}</div>
+      </div>
+    `;
+  }).join('');
   
   if(!filtered.length) grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No se encontraron productos</div>';
 }
@@ -1525,6 +1565,32 @@ function today(){ return new Date().toISOString().slice(0,10); }
 function fmtDate(d){ return new Date(d+'T00:00:00').toLocaleDateString('es-CO',{day:'2-digit',month:'short'}); }
 
 // ══════════════════════════════════════════════
+//  INVENTORY HELPERS
+// ══════════════════════════════════════════════
+function handleProdImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if(file.size > 200000) { showToast('Imagen muy pesada (máx 200KB)','err'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const base64 = e.target.result;
+    document.getElementById('pImgPrev').innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover">`;
+    document.getElementById('pImgInput').dataset.base64 = base64;
+  };
+  reader.readAsDataURL(file);
+}
+
+function calcProfit() {
+  const costo = parseFloat(document.getElementById('pCosto').value) || 0;
+  const precio = parseFloat(document.getElementById('pPrecio').value) || 0;
+  const margin = precio - costo;
+  const pct = precio > 0 ? Math.round((margin / precio) * 100) : 0;
+  const el = document.getElementById('pMargin');
+  el.textContent = `${fmt(margin)} (${pct}%)`;
+  el.style.color = margin >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+// ══════════════════════════════════════════════
 //  SAVE OPERATIONS
 // ══════════════════════════════════════════════
 function saveIngreso(){
@@ -1590,16 +1656,36 @@ function saveCartera(){
 
 function saveProducto(){
   const nom    = document.getElementById('pNom').value.trim();
+  const ref    = document.getElementById('pRef').value.trim();
+  const cat    = document.getElementById('pCat').value.trim();
+  const wh     = document.getElementById('pWh').value.trim();
   const costo  = parseFloat(document.getElementById('pCosto').value)||0;
   const precio = parseFloat(document.getElementById('pPrecio').value)||0;
   const icon   = document.getElementById('pIcon').value||'📦';
   const units  = parseInt(document.getElementById('pUnidades').value)||0;
-  if(!nom||costo<=0||precio<=0){ showToast('Completa todos los campos','err'); return; }
+  const img    = document.getElementById('pImgInput').dataset.base64 || '';
+
+  if(!nom||costo<=0||precio<=0){ showToast('Completa Nombre, Costo y Precio','err'); return; }
+  
   const arr = getProductos();
-  arr.push({ id:Date.now(), nom, costo, precio, icon, units });
+  arr.push({ id:Date.now(), nom, ref, cat, wh, costo, precio, icon, units, img });
   DB.set(CUR,'productos',arr);
   hideModal('modalProducto');
-  showToast('✅ Producto agregado','ok');
+  showToast('✅ Producto guardado','ok');
+  
+  // Limpiar campos modal
+  document.getElementById('pNom').value='';
+  document.getElementById('pRef').value='';
+  document.getElementById('pCat').value='';
+  document.getElementById('pWh').value='';
+  document.getElementById('pCosto').value='';
+  document.getElementById('pPrecio').value='';
+  document.getElementById('pUnidades').value='';
+  document.getElementById('pImgInput').value='';
+  document.getElementById('pImgInput').dataset.base64='';
+  document.getElementById('pImgPrev').innerHTML='<span>📷 Click para subir imagen</span>';
+  document.getElementById('pMargin').textContent='$0 (0%)';
+
   refreshAll();
 }
 
@@ -1722,7 +1808,16 @@ function refreshAll(){
     document.getElementById('prodList').innerHTML = prods.map(p=>{
       const mg = p.precio>0 ? Math.round((p.precio-p.costo)/p.precio*100) : 0;
       const cls = mg>=30?'marg-h':mg>=10?'marg-m':'marg-l';
-      return `<div class="prod-row"><div class="prod-ico" style="background:rgba(0,200,150,0.1)">${p.icon}</div><div class="prod-data"><div class="prod-name">${p.nom}</div><div class="prod-sub">${p.units} unidades · Costo ${fmt(p.costo)}</div></div><span class="tag ${cls}">${mg>=0?mg+'% ganancia':'Pérdida'}</span></div>`;
+      const displayImg = p.img ? `<img src="${p.img}" class="inventory-img">` : `<div class="prod-ico" style="background:rgba(0,200,150,0.1)">${p.icon}</div>`;
+      return `
+        <div class="prod-row">
+          ${displayImg}
+          <div class="prod-data">
+            <div class="prod-name">${p.nom} <small style="color:var(--muted)">${p.ref||''}</small></div>
+            <div class="prod-sub">${p.units} uds · ${p.cat||'Gral'} · ${p.wh||'Bodega'}</div>
+          </div>
+          <span class="tag ${cls}">${mg>=0?mg+'%':'Pérdida'}</span>
+        </div>`;
     }).join('');
     const best = prods.reduce((a,b)=>((b.precio-b.costo)/b.precio)>((a.precio-a.costo)/a.precio)?b:a);
     const worst= prods.reduce((a,b)=>((b.precio-b.costo)/b.precio)<((a.precio-a.costo)/a.precio)?b:a);
