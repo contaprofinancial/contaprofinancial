@@ -929,54 +929,6 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
       </div>
     </div>
 
-    <!-- ── VENTAS POS ── -->
-    <div id="tab-ventas" class="screen">
-      <div class="topbar">
-        <div><div class="page-title">Ventas <span>POS</span></div><div class="page-sub">Punto de Venta Rápido</div></div>
-        <div style="display:flex;gap:10px">
-           <button class="btn btn-ghost" onclick="renderPOSProducts()">🔄 Sincronizar</button>
-           <button class="btn btn-navy" onclick="vaciarCarrito()">🗑️ Vaciar</button>
-        </div>
-      </div>
-      
-      <div class="pos-container">
-        <div class="pos-products">
-          <div class="form-group" style="max-width:300px">
-            <input type="text" class="form-input" id="posSearch" placeholder="🔍 Buscar producto..." oninput="filterPOS()">
-          </div>
-          <div class="pos-grid" id="posGrid">
-            <!-- Cargado dinámicamente -->
-          </div>
-        </div>
-        
-        <div class="pos-cart">
-          <div class="pos-cart-header">
-            <span>🛒 Factura Actual</span>
-            <span class="tag tag-blu" id="cartCount">0 items</span>
-          </div>
-          <div class="pos-cart-items" id="posItems">
-            <!-- items del carrito -->
-          </div>
-          <div class="pos-cart-footer">
-            <div class="pos-total-row">
-              <span>Total a pagar</span>
-              <span id="posTotal">$0</span>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Método de Pago</label>
-              <select class="form-select" id="posPago">
-                <option>Efectivo</option>
-                <option>Nequi / Daviplata</option>
-                <option>Tarjeta</option>
-                <option>Transferencia</option>
-              </select>
-            </div>
-            <button class="btn btn-green" onclick="completarVentaPOS()">✅ FACTURAR E IMPRIMIR</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <div id="tab-puc" class="screen">
        <div class="topbar"><div><div class="page-title">Libro <span>Contable PUC</span></div><div class="page-sub">Asientos automáticos plan de cuentas colombiano</div></div></div>
        <div class="card"><div id="pucTable"><div style="text-align:center;padding:40px;color:var(--muted)">Sin registros contables aún</div></div></div>
@@ -1005,13 +957,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
           <p style="font-size:11px; color:var(--muted); margin-top:10px">⚠️ Estos datos son obligatorios para que tus tickets POS cumplan con la norma legal vigente.</p>
         </div>
       </div>
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><div class="card-title">Seguridad</div></div>
+        <div class="form-group"><label class="form-label">Nueva Contraseña</label><input type="password" id="confNewPass" class="form-input"></div>
+        <button class="btn btn-green" onclick="cambiarPass()">Actualizar Seguridad</button>
+      </div>
     </div>
-           <div class="card-header"><div class="card-title">Cambiar Contraseña</div></div>
-           <div class="form-group"><label class="form-label">Nueva Contraseña</label><input type="password" id="confNewPass" class="form-input"></div>
-           <button class="btn btn-green" onclick="cambiarPass()">Actualizar Seguridad</button>
-         </div>
-       </div>
-    </div>
+
   </main>
 </div>
 
